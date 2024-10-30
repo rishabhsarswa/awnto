@@ -120,7 +120,7 @@ function awnto_server_check_profile_loadXMLDoc()
     	//login_message.innerHTML = "connection done " +  this.readyState+":"+this.status + ";" + this.responseText  ;
       	const obj = JSON.parse(this.responseText);
       	//login_message.innerHTML="ok";
-      	
+      	//alert(this.responseText);
       	if(obj.err == 0 )
       	{
       		//login_message.innerHTML = "sign done redirecting to homepage" ;
@@ -128,7 +128,7 @@ function awnto_server_check_profile_loadXMLDoc()
       		document.getElementById("awnto_profile_user_uname").innerHTML=obj.user_uname;
       		document.getElementById("awnto_profile_user_bname").innerHTML=obj.user_bname;
       		document.getElementById("awnto_profile_user_key_id").innerHTML=obj.user_current_key_id;
-      		//alert(this.responseText);
+      		
       		
       		var awnto_active_sesstion_table="<table><tr><th>SNo</th><th colspan=2 >Key ID</th></tr>";
       		for( var i = 0 ; i < obj.user_current_keys_total ; i++ )
@@ -138,7 +138,16 @@ function awnto_server_check_profile_loadXMLDoc()
       			awnto_active_sesstion_table+="<td colspan=2 >"+obj.user_current_keys_id[i]+"</td>";
       			awnto_active_sesstion_table+="</tr><tr>";
       			awnto_active_sesstion_table+="<td>"+obj.user_current_keys_id_gen_time[i]+"</td>";
-      			awnto_active_sesstion_table+="<td><button onclick=\"awnto_sessions_signout_by_key_id('"+obj.user_current_keys_id[i]+"');\">Sign Out</button></td>";
+      			awnto_active_sesstion_table+="<td>";
+      			if(obj.user_current_key_id == obj.user_current_keys_id[i] )
+      			{
+      				awnto_active_sesstion_table+="Current";
+      			}
+      			else
+      			{
+      				awnto_active_sesstion_table+="<button onclick=\"awnto_sessions_signout_by_key_id('"+obj.user_current_keys_id[i]+"');\">Sign Out</button>";
+      			}
+      			awnto_active_sesstion_table+="</td>";
       			awnto_active_sesstion_table+="</tr><tr>";
       			awnto_active_sesstion_table+="<td colspan=2 >"+"Key Information"+"</td>";
       			awnto_active_sesstion_table+="</tr>";
