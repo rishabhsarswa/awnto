@@ -1,5 +1,5 @@
 
-var awnto_server="http://127.0.0.1:7180/api" ;
+//var awnto_server="http://127.0.0.1:7180/api" ;
 var awnto_server="https://serv.awnto.com/cli/xgate/site/api" ;
 
 var awnto_server_loop_web_redirect="";
