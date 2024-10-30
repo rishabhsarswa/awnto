@@ -1,6 +1,6 @@
 
-//var awnto_server="http://127.0.0.1:7180/api" ;
-var awnto_server="https://serv.awnto.com/cli/xgate/site/api" ;
+var awnto_server="http://127.0.0.1:7180/api" ;
+//var awnto_server="https://serv.awnto.com/cli/xgate/site/api" ;
 
 var awnto_server_loop_web_redirect="";
 var awnto_session_id="";
@@ -114,6 +114,7 @@ function awnto_server_require_login_loadXMLDoc()
       	}
       	else
       	{
+      		document.getElementById("awnto_server_loading_page").style.display="none";
       		//window.location='error.html';
       		//login_message.innerHTML = "sign err "+obj.err+ " ; msg : " +obj.err_msg ;
       		//oncaptcha_refresh_button() ;
@@ -126,8 +127,9 @@ function awnto_server_require_login_loadXMLDoc()
     	//window.location='error.html?state='+this.readyState+'&status='+this.status;
     	if (this.readyState == 4)
     	{
-    		window.location='error.html?state='+this.readyState+'&status='+this.status;
+    		//window.location='error.html?state='+this.readyState+'&status='+this.status;
     		//alert('state='+this.readyState+';status='+this.status);
+    		document.getElementById("awnto_server_loading_page_cont").innerHTML="Loading Error <br>Try refreshing Page";
     	}
     }
   };
@@ -166,7 +168,7 @@ function awnto_server_require_session_loadXMLDoc()
       	if(obj.err == 0 )
       	{
       		//login_message.innerHTML = "sign done redirecting to homepage" ;
-      		
+      		document.getElementById("awnto_server_loading_page").style.display="none";
       		//window.location='profile.html';
       	}
       	else
@@ -185,8 +187,9 @@ function awnto_server_require_session_loadXMLDoc()
     	//window.location='error.html?state='+this.readyState+'&status='+this.status;
     	if (this.readyState == 4)
     	{
-    		window.location='error.html?state='+this.readyState+'&status='+this.status;
+    		//window.location='error.html?state='+this.readyState+'&status='+this.status;
     		//alert('state='+this.readyState+';status='+this.status);
+    		document.getElementById("awnto_server_loading_page_cont").innerHTML="Loading Error <br>Try refreshing Page";
     	}
     }
   };
