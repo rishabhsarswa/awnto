@@ -1,0 +1,26 @@
+
+<html>
+	<head>
+	
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<script src="css/server.js"></script>
+		<script src="css/profile.js"></script>
+		<!--
+		<link rel="stylesheet" type="text/css" href="css/profile.css">
+		<script src="css/profile.js"></script>
+		-->		
+	</head>
+	
+	<body onload="a_body();" >
+		
+		Name : <span id="awnto_profile_user_name" ></span> <br>
+		UName : <span id="awnto_profile_user_uname" ></span> <br>
+		Basename : <span id="awnto_profile_user_bname" ></span> <br>
+		
+		<br><button onclick="window.location='active_sessions.html';">Active Sessions</button><br>
+		<br><button onclick="window.location='change_password.html';">Change Password</button><br>
+		<br><button onclick="awnto_server_signout('current');">Sign Out</button><br>
+	</body>
+
+</html>
+

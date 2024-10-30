@@ -1,0 +1,51 @@
+
+<html>
+	<head>
+	
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="css/active_sessions.css">
+		<script src="css/server.js"></script>
+		<script src="css/active_sessions.js"></script>
+		<!--
+		<link rel="stylesheet" type="text/css" href="css/profile.css">
+		<script src="css/profile.js"></script>
+		-->		
+	</head>
+	
+	<body onload="a_body();" >
+		
+		Name : <span id="awnto_profile_user_name" ></span> <br>
+		UName : <span id="awnto_profile_user_uname" ></span> <br>
+		Basename : <span id="awnto_profile_user_bname" ></span> <br>
+		Key ID :  <span id="awnto_profile_user_key_id" ></span> <br>
+		Key : Original key is in browser/app memory <br>
+		
+		
+		
+		<br>
+		<button onclick="window.location='profile.html';">Home</button><br>
+		<br>
+		<button onclick="awnto_server_signout('current');">Sign Out</button>
+		<button onclick="awnto_sessions_signout_all_other();">Sign Out All Others</button>
+		<button onclick="awnto_server_signout('all');">Sign Out All</button>
+		<br><br>
+		
+		<span id="awnto_profile_active_sessions_table"></span>
+		<!--
+		<table>
+			<th>SNo</th><th>Key ID</th><th>Created Date</th><th>Action</th>
+		<?php
+			$dbs_keys = $dbase->get_keys_from_user_base($dbs_auth['user']) ;
+			for( $i = 0 ; $i < $dbs_keys[0] ; $i++ )
+			{
+				echo("<tr><td>". $i+1 ."</td><td>".$dbs_keys['keys'][$i]['key_id']."</td><td>".gmdate("Y-m-d TH:i:s\Z",$dbs_keys['keys'][$i]['time'])."</td><td><button onclick=\"window.location='../php/signout.php?q=by_key_id&key_id=".$dbs_keys['keys'][$i]['key_id']."';\">Sign Out</button></td></tr>\n");
+			}
+		?>
+		
+		</table>
+		-->
+		
+	</body>
+
+</html>
+

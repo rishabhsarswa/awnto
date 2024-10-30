@@ -1,0 +1,44 @@
+<html>
+	<head>
+	
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="css/login.css">
+		<script src="css/server.js"></script>
+		<script src="css/login.js"></script>
+		
+	</head>
+	
+	<body onload="a_body();" class="body" id="body" >
+		<div class="login_box" id="login_box" >
+			<br>
+			<div id="login_xgate_logo"><img id="login_xgate_logo_img"src="css/awnto_cover.png" ></div>
+			
+				<br>
+				<label for="fname" class="login_entry_text" >USERNAME</label><br>
+  				<input type="text" id="login_uname" name="fname" value="" class="login_entry" ><br><br>
+				<label for="password" class="login_entry_text" >PASSWORD</label><br>
+				<input type="password" id="login_password" name="lname" value="" class="login_entry" ><br><br>
+				
+				
+				<label for="cpatch_box" class="login_entry_text" >CAPTCHA</label><br>
+				<img id="captcha_img" >
+				<button id="captcha_refresh" onclick="oncaptcha_refresh_button();" >&#x21bb;</button>
+				<input type="text" id="captcha_box" value="" > <br><br>
+				
+				
+			
+			<button id="login_entry_button_login" class="login_entry_button" onclick="onlogin_button();">Log in</button><br>
+			<div id="login_message" ></div><br>
+			<button id="login_entry_button_signup" class="login_entry_button" onclick="window.location='signup.html';" >Sign Up</button>
+			<br><br>
+			<div id="login_entry_extra">
+			If you forgot your password : <a href="recover.php">recover</a> 
+			<br><br>
+			</div>
+			
+			<div id="logs" ></div>
+		
+		</div>
+	</body>
+
+</html>
