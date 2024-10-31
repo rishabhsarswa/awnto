@@ -130,15 +130,17 @@ function awnto_server_check_profile_loadXMLDoc()
       		document.getElementById("awnto_profile_user_key_id").innerHTML=obj.user_current_key_id;
       		
       		
-      		var awnto_active_sesstion_table="<table><tr><th>SNo</th><th colspan=2 >Key ID</th></tr>";
+      		var awnto_active_sesstion_table="<table><tr><th rowspan=3 class=\"bor_tab_all\" >SNo</th><th colspan=2 class=\"bor_tab_right bor_tab_top\" >Key ID</th></tr>";
+      		awnto_active_sesstion_table+="<tr><th>Created Time</th><th class=\"bor_tab_right\" >Action</th></tr>";
+      		awnto_active_sesstion_table+="<tr><th colspan=2 class=\"bor_tab_right bor_tab_bottom\" >Key Information</th></tr>";
       		for( var i = 0 ; i < obj.user_current_keys_total ; i++ )
       		{
       			awnto_active_sesstion_table+="<tr>";
-      			awnto_active_sesstion_table+="<td rowspan=3 >"+(i+1)+"</td>";
-      			awnto_active_sesstion_table+="<td colspan=2 >"+obj.user_current_keys_id[i]+"</td>";
+      			awnto_active_sesstion_table+="<td rowspan=3 class=\"bor_tab_all\" >"+(i+1)+"</td>";
+      			awnto_active_sesstion_table+="<td colspan=2 class=\"bor_tab_right\" >"+obj.user_current_keys_id[i]+"</td>";
       			awnto_active_sesstion_table+="</tr><tr>";
       			awnto_active_sesstion_table+="<td>"+obj.user_current_keys_id_gen_time[i]+"</td>";
-      			awnto_active_sesstion_table+="<td>";
+      			awnto_active_sesstion_table+="<td class=\"bor_tab_right\">";
       			if(obj.user_current_key_id == obj.user_current_keys_id[i] )
       			{
       				awnto_active_sesstion_table+="Current";
@@ -149,7 +151,7 @@ function awnto_server_check_profile_loadXMLDoc()
       			}
       			awnto_active_sesstion_table+="</td>";
       			awnto_active_sesstion_table+="</tr><tr>";
-      			awnto_active_sesstion_table+="<td colspan=2 >"+"Key Information"+"</td>";
+      			awnto_active_sesstion_table+="<td colspan=2 class=\"bor_tab_right bor_tab_bottom\" >"+"Key Information"+"</td>";
       			awnto_active_sesstion_table+="</tr>";
       		}
       		awnto_active_sesstion_table+="</table>";

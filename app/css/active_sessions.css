@@ -10,7 +10,28 @@ border-collapse:collapse;
 }
 
 th,td {
-	border: 1px solid #dddddd;
+	border: 0px solid #dddddd;
 	padding: 8px;
 }
 
+.bor_tab_all
+{
+	border : 1px solid #444444;
+	text-align : center ;
+}
+.bor_tab_left
+{
+	border-left : 1px solid #444444;
+}
+.bor_tab_right
+{
+	border-right : 1px solid #444444;
+}
+.bor_tab_top
+{
+	border-top : 1px solid #444444;
+}
+.bor_tab_bottom
+{
+	border-bottom : 1px solid #444444;
+}
