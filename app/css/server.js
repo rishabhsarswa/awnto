@@ -495,51 +495,13 @@ async function awnto_server_require_signout_loadXMLDoc(x)
 
 
 var oncaptcha_refresh_button_i = 0 ;
-async function oncaptcha_refresh_button() 
+function oncaptcha_refresh_button()
 {
 	oncaptcha_refresh_button_i++ ;
 	var login_captcha = document.getElementById("captcha_img") ;
-	//login_captcha.src=awnto_server+"/captcha.php?awnto_session_id="+awnto_session_id+"&i="+ oncaptcha_refresh_button_i ;
-	document.getElementById("captcha_box").value="" ;
-	
-    var xhttp = new XMLHttpRequest();
-    
-  xhttp.onreadystatechange = async function() {
-  if (this.readyState == 4 && this.status == 200)
-  {
-  	//alert("done");
-  /*
-  	var keyPair = await keyPair_wt ;
-    	var enxd2 = await window.crypto.subtle.decrypt( "RSA-OAEP" , keyPair.privateKey, this.response);
-    
-      var arrayBufferView = new Uint8Array( enxd2 );
-    var blob = new Blob( [ arrayBufferView ], { type: "image/jpeg" } );
-    var urlCreator = window.URL || window.webkitURL;
-    var imageUrl = urlCreator.createObjectURL( blob );
-    //var img = document.querySelector( "#iimage" );
-    login_captcha.src = imageUrl;
-    alert(imageUrl);
-    */
-    //console.log(this.response);
-    //var keyPair = await keyPair_wt ;
-	 //data_loaded = await awnto_enc_get(this.response);
-    //var enxd2 = await window.crypto.subtle.decrypt({ name:"RSA-OAEP" } , keyPair.privateKey, this.response );
-    var dnc2 = new TextDecoder("utf-8");
-   var datax2 = dnc2.decode(this.response);
-     //alert(datax2) ;
-     login_captcha.src = 'data:image/png;base64,'+datax2;
-    
-    
-    }
-  };
-  xhttp.open("POST", awnto_server+"/captcha.php?awnto_session_id="+awnto_session_id+"&i="+ oncaptcha_refresh_button_i, true);
-  xhttp.responseType = "arraybuffer";
-  	var data = new crypto_return();
-  	var form = new FormData();
-  	
-	var ret_form=await awnto_enc_send(form,data);
-  	xhttp.send(ret_form);
-  
+	login_captcha.src=awnto_server+"/captcha.php?awnto_session_id="+awnto_session_id+"&i="+ oncaptcha_refresh_button_i ;
+	var login_captcha = document.getElementById("captcha_box").value="" ;
+
 }
 
 
