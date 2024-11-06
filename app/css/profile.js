@@ -19,16 +19,16 @@ function a_loop()
 }
 
 
-function awnto_server_check_profile_loadXMLDoc() 
+async function awnto_server_check_profile_loadXMLDoc() 
 {
 	
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = async function() {
   
   if (this.readyState == 4 && this.status == 200) {
     //if ( this.readyState == 4) {
     	//login_message.innerHTML = "connection done " +  this.readyState+":"+this.status + ";" + this.responseText  ;
-      	const obj = JSON.parse(this.responseText);
+      	const obj = JSON.parse(await awnto_enc_get(this.response));
       	//login_message.innerHTML="ok";
       	
       	if(obj.err == 0 )
@@ -57,15 +57,15 @@ function awnto_server_check_profile_loadXMLDoc()
   };
   xhttp.open("POST", awnto_server+"/profile.php", true);
   
-  var data = new FormData();
-  	
+   	xhttp.responseType = "arraybuffer";
+  	var data = new crypto_return();
+  	var form = new FormData();
   	if(awnto_app_user != "")
-		data.append('awnto_user', awnto_app_user );
-	//data.append('awnto_user_key', "1234");
+		data.set('awnto_user', awnto_app_user );
 	if( awnto_app_user_key !="")
-		data.append('awnto_user_key', awnto_app_user_key );
-  
-  xhttp.send(data);
+		data.set('awnto_user_key', awnto_app_user_key );
+	var ret_form=await awnto_enc_send(form,data);
+  	xhttp.send(ret_form);
 }
 
 

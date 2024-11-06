@@ -17,11 +17,11 @@ function a_loop()
 	setTimeout(a_loop,100);
 }
 
-function awnto_sessions_signout_by_key_id(x)
+async function awnto_sessions_signout_by_key_id(x)
 {
 	
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = async function() {
   if (this.readyState == 4 && this.status == 200) {
     //if ( this.readyState == 4) {
     	//login_message.innerHTML = "connection done " +  this.readyState+":"+this.status + ";" + this.responseText  ;
@@ -48,26 +48,20 @@ function awnto_sessions_signout_by_key_id(x)
   //awnto_setCookie('awnto_user',"rishu",365);
   //username = prompt("Please enter your name:", "");
   //alert( awnto_getCookie('awnto_user'));
-  
-  var data = new FormData();
-  	if(awnto_getCookie('awnto_app_user')!="")
-		data.append('awnto_user', awnto_getCookie('awnto_app_user'));
-	//data.append('awnto_user_key', "1234");
-	if(awnto_getCookie('awnto_app_user_key')!="")
-		data.append('awnto_user_key', awnto_getCookie('awnto_app_user_key'));
-//data.append('pass', CryptoJS.MD5(CryptoJS.MD5(pass)));
-//data.append('pass', pass );
-//data.append('pass', CryptoJS.MD5(pass));
-
-//data.append('captcha', captcha );
-  
-  xhttp.send(data);
+  	xhttp.responseType = "arraybuffer";
+  	var data = new crypto_return();
+  	var form = new FormData();
+  	if(awnto_app_user != "")
+		data.set('awnto_user', awnto_app_user );
+	if( awnto_app_user_key !="")
+		data.set('awnto_user_key', awnto_app_user_key );
+	var ret_form=await awnto_enc_send(form,data);
+  	xhttp.send(ret_form);
 }
-function awnto_sessions_signout_all_other()
+async function awnto_sessions_signout_all_other()
 {
-	
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = async function() {
   if (this.readyState == 4 && this.status == 200) {
     //if ( this.readyState == 4) {
     	//login_message.innerHTML = "connection done " +  this.readyState+":"+this.status + ";" + this.responseText  ;
@@ -95,30 +89,26 @@ function awnto_sessions_signout_all_other()
   //username = prompt("Please enter your name:", "");
   //alert( awnto_getCookie('awnto_user'));
   
-  var data = new FormData();
-  	if(awnto_getCookie('awnto_app_user')!="")
-		data.append('awnto_user', awnto_getCookie('awnto_app_user'));
-	//data.append('awnto_user_key', "1234");
-	if(awnto_getCookie('awnto_app_user_key')!="")
-		data.append('awnto_user_key', awnto_getCookie('awnto_app_user_key'));
-//data.append('pass', CryptoJS.MD5(CryptoJS.MD5(pass)));
-//data.append('pass', pass );
-//data.append('pass', CryptoJS.MD5(pass));
-
-//data.append('captcha', captcha );
-  
-  xhttp.send(data);
+  	xhttp.responseType = "arraybuffer";
+  	var data = new crypto_return();
+  	var form = new FormData();
+  	if(awnto_app_user != "")
+		data.set('awnto_user', awnto_app_user );
+	if( awnto_app_user_key !="")
+		data.set('awnto_user_key', awnto_app_user_key );
+	var ret_form=await awnto_enc_send(form,data);
+  	xhttp.send(ret_form);
 }
-function awnto_server_check_profile_loadXMLDoc() 
+async function awnto_server_check_profile_loadXMLDoc() 
 {
 	
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = async function() {
   
   if (this.readyState == 4 && this.status == 200) {
     //if ( this.readyState == 4) {
     	//login_message.innerHTML = "connection done " +  this.readyState+":"+this.status + ";" + this.responseText  ;
-      	const obj = JSON.parse(this.responseText);
+      	const obj = JSON.parse(await awnto_enc_get(this.response));
       	//login_message.innerHTML="ok";
       	//alert(this.responseText);
       	if(obj.err == 0 )
@@ -176,14 +166,15 @@ function awnto_server_check_profile_loadXMLDoc()
   xhttp.open("POST", awnto_server+"/active_sessions.php", true);
   
   
-  var data = new FormData();
+	xhttp.responseType = "arraybuffer";
+  	var data = new crypto_return();
+  	var form = new FormData();
   	if(awnto_app_user != "")
-		data.append('awnto_user', awnto_app_user );
-	//data.append('awnto_user_key', "1234");
+		data.set('awnto_user', awnto_app_user );
 	if( awnto_app_user_key !="")
-		data.append('awnto_user_key', awnto_app_user_key );
-  
-  xhttp.send(data);
+		data.set('awnto_user_key', awnto_app_user_key );
+	var ret_form=await awnto_enc_send(form,data);
+  	xhttp.send(ret_form);
 }
 
 

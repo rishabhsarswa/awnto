@@ -1,26 +1,52 @@
 
-//var awnto_server="http://127.0.0.1:7180/api" ;
-var awnto_server="https://serv.awnto.com/cli/xgate/site/api" ;
+var awnto_server="http://127.0.0.1:7180/api" ;
+//var awnto_server="https://serv.awnto.com/cli/xgate/site/api" ;
 
 var awnto_server_loop_web_redirect="";
 var awnto_session_id="";
 var awnto_app_user="";
 var awnto_app_user_key="";
-function awnto_server_boot()
+//var is_data_booted=0;
+
+async function awnto_server_boot()
 {
 
 	//awnto_session_id=CryptoJS.MD5(Math.random());
-	var i_random=""+Math.floor( Math.random()*1024*1024*1024 );
-	awnto_session_id=CryptoJS.MD5(i_random);
-	
-	
+	var i_random=""+Date.now()+"_"+Math.floor( Math.random()*1024*1024*1024 );
+	awnto_session_id=""+CryptoJS.MD5(i_random);
+	//alert(Date.now());
+	//console.log(awnto_session_id);
+	/*
 	if(awnto_getCookie('awnto_app_user')!="")
 		awnto_app_user=awnto_getCookie('awnto_app_user');
 	//data.append('awnto_user_key', "1234");
 	if(awnto_getCookie('awnto_app_user_key')!="")
 		awnto_app_user_key=awnto_getCookie('awnto_app_user_key');
 	//alert(i_random + ";" + CryptoJS.MD5(i_random) );
+	*/
+	if (localStorage && 'awnto_app_user' in localStorage) {
+    		awnto_app_user = localStorage.awnto_app_user;
+  	}
+  	if (localStorage && 'awnto_app_user_key' in localStorage) {
+    		awnto_app_user_key = localStorage.awnto_app_user_key;
+  	}
+  	
+  	awnto_enc_boot();
+  	//test();
+  	//console.log(localStorage);
+  	/*
+ 	while(is_data_booted==0)
+  	{
+ 		await new Promise(r => setTimeout(r, 2000));
+  	}*/
 
+}
+function awnto_server_login(user,key)
+{
+	localStorage && (localStorage.awnto_app_user = user);
+	localStorage && (localStorage.awnto_app_user_key = key);
+      		//awnto_setCookie('awnto_app_user',user,30);
+		//awnto_setCookie('awnto_app_user_key',key,30);
 }
 function awnto_server_loop()
 {
@@ -46,8 +72,225 @@ function awnto_server_require_session()
 }
 function awnto_server_signout(x)
 {
-	//alert(x);
+	
 	awnto_server_require_signout_loadXMLDoc(x);
+}
+
+
+
+
+var awnto_server_pubkey_spki=`-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkMT80RVwoYX19sQbBW7uajlFj
+AjU/8wjAcfWJpSDnw2nDJw7JRtaXrMCwxFENVyfkDlzVIY+H6osiiyaMbpC0nNYq
+GNkz9XhvqTBt83aGrwFFXArbudps1V7eGKoCQNqjlFFGpI9H+SAUek/jpdu+RzX7
+DF/dnqzHejteJFWKswIDAQAB
+-----END PUBLIC KEY-----`;
+
+
+
+
+
+class crypto_return
+{
+	/*
+	constructor()
+	{
+		this.total=0;
+	}
+	*/
+	append(name,value)
+	{
+		this[name]=value ;
+		//this.total++;
+	}
+	set(name,value)
+	{
+		this[name]=value ;
+		//this.total++;
+	}
+	get(name,)
+	{
+		return this[name] ;
+	}
+}
+
+
+async function awnto_jwk_importPublicKey(key) {
+  return await window.crypto.subtle.importKey(
+    "jwk",             // The format of the key to be imported (SubjectPublicKeyInfo)
+    key,               // The public key data
+    {
+      name: "RSA-OAEP", // The algorithm the imported key will be used with
+      hash: "SHA-256",  // The hash function to be used with the algorithm
+    },
+    true,               // Whether the key is extractable
+    ["encrypt"]         // The intended use for the key (encryption in this case)
+  );
+}
+
+async function awnto_spki_importPublicKey(spkiPem) {       
+    return await window.crypto.subtle.importKey(
+        "spki",
+        getSpkiDer(spkiPem),
+        {
+            name: "RSA-OAEP",
+            hash: "SHA-256",
+        },
+        true,
+        ["encrypt"]
+    );
+}
+
+function getSpkiDer(spkiPem){
+    const pemHeader = "-----BEGIN PUBLIC KEY-----";
+    const pemFooter = "-----END PUBLIC KEY-----";
+    var pemContents = spkiPem.substring(pemHeader.length, spkiPem.length - pemFooter.length);
+    var binaryDerString = window.atob(pemContents);
+    return str2ab(binaryDerString); 
+}
+
+function str2ab(str) {
+    const buf = new ArrayBuffer(str.length);
+    const bufView = new Uint8Array(buf);
+    for (let i = 0, strLen = str.length; i < strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+}
+
+
+var keyPair_wt = window.crypto.subtle.generateKey(
+  {
+    name: "RSA-OAEP",
+    modulusLength: 4096,
+    publicExponent: new Uint8Array([1, 0, 1]),
+    hash: "SHA-256",
+  },
+  true,
+  ["encrypt", "decrypt"],
+);
+
+async function awnto_enc_boot()
+{
+
+	var keyPair = await keyPair_wt ;
+    
+   
+   
+   
+   
+   //is_data_booted=1;
+}
+
+async function awnto_enc_send(form,crypto_ret)
+{
+	var keyPair = await keyPair_wt ;
+
+	if (!("TextEncoder" in window)) 
+  alert("Sorry, this browser does not support TextEncoder...");
+    var pubKey_spki = await crypto.subtle.exportKey("spki", keyPair.publicKey);
+    //var priKey_spki = await crypto.subtle.exportKey("jwk", keyPair.privateKey);
+                                        
+   var encoded = String.fromCharCode.apply(null, new Uint8Array(pubKey_spki));
+var asciiPublicKey = window.btoa(encoded);
+var x509key = [
+  "-----BEGIN PUBLIC KEY-----",
+  asciiPublicKey.replace(/(.{80})/g, "$1\n"),
+  "-----END PUBLIC KEY-----"
+].join("\n");
+ var pubKey=x509key;
+
+	//var awnto_imported_server_pubkey = await awnto_spki_importPublicKey(awnto_server_pubkey_spki);
+
+	var imported_server_pubkey = await awnto_spki_importPublicKey(awnto_server_pubkey_spki);
+	//alert(awnto_server_pubkey_spki);
+	//var tmp = new crypto_return();
+	//tmp.set("demo","awnto");
+	//alert(JSON.stringify(crypto_ret));
+	crypto_ret.set('enPubKey',pubKey);
+	var return_string=JSON.stringify(crypto_ret) ;
+	//alert(JSON.stringify(crypto_ret));
+	//alert("return lenth:"+return_string.length+";");
+	//var enc = new TextEncoder(); // always utf-8
+	//var enndata = enc.encode(btoa(return_string));
+	//var blob = new Blob([return_string], { type : "application/octet-stream" });
+	var return_strings=split_string_partwise(return_string, 32 ) ;
+	var enxc=[];
+	//var enxcr=[];
+	for (var i=0, len=return_strings['all'] ; i < len ; i++) 
+    	{
+	 	enxc[i] = await window.crypto.subtle.encrypt({ name:"RSA-OAEP" },imported_server_pubkey, stringToArrayBuffer(return_strings[i]));
+	 	//appendBuffer(buffer1, buffer2)
+	 	
+    	}
+    	//enxcr=[enxc[0],enxc[1],enxc[2]];
+ 	//var enxcx = await window.crypto.subtle.encrypt({ name:"RSA-OAEP" },imported_server_pubkey, return_strings);
+    	var blobc = new Blob( enxc,{type: "application/octet-stream" });
+    	//var form = new FormData();
+	form.append("enc_data", blobc );
+	//form.append('enPubKey',JSON.stringify(pubKey));
+  	return await form;
+}
+function stringToArrayBuffer(str){
+    var buf = new ArrayBuffer(str.length);
+    var bufView = new Uint8Array(buf);
+    for (var i=0, strLen=str.length; i<strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+}
+function appendBuffer(buffer1, buffer2) {
+  var tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
+  tmp.set(new Uint8Array(buffer1), 0);
+  tmp.set(new Uint8Array(buffer2), buffer1.byteLength);
+  return tmp;
+};
+function split_string_partwise(str,n){
+    
+    var varis = [];
+    var buf_all=0;
+    var ixt=0 ;
+    var ixm=0 ;
+    var buoverfolw=n ;
+    for (var i=0, strLen=str.length; i<strLen; i++) 
+    {
+    	 if(ixt==buoverfolw)
+    	{
+    		ixt=0 ;
+    		ixm++ ;
+    		//buf['all']=ixm ;
+    	}
+    	if(ixt==0)
+    	{
+    		var buffl=str.length - ixm*buoverfolw ;
+    		if(buffl>buoverfolw)
+    			buffl=buoverfolw ;
+    		buf_all=ixm +1 ;
+    		varis[ixm]="";
+    		
+    	}
+        varis[ixm]+=String.fromCharCode(str.charCodeAt(i));
+        
+        ixt++ ;
+    }
+    //for (var i=0, len=buf_all ; i < len ; i++) 
+    //{
+     //	alert(varis[i]) ;
+    //}
+    varis['all']=buf_all;
+    return varis;
+}
+//encrypt_partwise("shfilahelifglqeriagflaedfgqlwegfejkldgfvlbdflwselfvlkweflwefgbwledbfklsjdgbfvsgkjdfvbjksbfkjsdbjksbdjkfbsjkdb");
+//encrypt_partwise("1234");
+async function awnto_enc_get(ret)
+{
+	var keyPair = await keyPair_wt ;
+	 data_loaded = ret;
+    var enxd2 = await window.crypto.subtle.decrypt({ name:"RSA-OAEP" } , keyPair.privateKey, data_loaded);
+    var dnc2 = new TextDecoder("utf-8");
+   var datax2 = dnc2.decode(enxd2);
+     return datax2 ;
+  
 }
 
 function awnto_setCookie(cname,cvalue,exdays) {
@@ -94,75 +337,68 @@ function awnto_listCookies() {
 }
 //setCookie("username", username, 365);
 
-function awnto_server_require_login_loadXMLDoc() 
+async function awnto_server_require_login_loadXMLDoc() 
 {
 	
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = async function() {
   if (this.readyState == 4 && this.status == 200) {
-    //if ( this.readyState == 4) {
-    	//login_message.innerHTML = "connection done " +  this.readyState+":"+this.status + ";" + this.responseText  ;
-      	const obj = JSON.parse(this.responseText);
-      	//login_message.innerHTML="ok";
-      	
+  
+  	//alert( await awnto_enc_get(this.response)) ;
+  	
+      	const obj = JSON.parse(await awnto_enc_get(this.response));
       	if(obj.err == 0 )
       	{
       		//login_message.innerHTML = "sign done redirecting to homepage" ;
-      		
-      		//window.location='profile.html';
       		awnto_server_loop_web_redirect='profile.html';
       	}
       	else
       	{
       		document.getElementById("awnto_server_loading_page").style.display="none";
-      		//window.location='error.html';
-      		//login_message.innerHTML = "sign err "+obj.err+ " ; msg : " +obj.err_msg ;
-      		//oncaptcha_refresh_button() ;
       	}
-      	//alert(awnto_listCookies());
+      	
     }
     else
     {
-   	 //login_message.innerHTML = "connecting " +  this.readyState+":"+this.status ;
-    	//window.location='error.html?state='+this.readyState+'&status='+this.status;
     	if (this.readyState == 4)
     	{
-    		//window.location='error.html?state='+this.readyState+'&status='+this.status;
-    		//alert('state='+this.readyState+';status='+this.status);
     		document.getElementById("awnto_server_loading_page_cont").innerHTML="Loading Error <br>Try refreshing Page";
     	}
     }
   };
   xhttp.open("POST", awnto_server+"/auth_login_status.php", true);
-  
-  //awnto_setCookie('awnto_user',"rishu",365);
-  //username = prompt("Please enter your name:", "");
-  //alert( awnto_getCookie('awnto_user'));
-  
-  var data = new FormData();
+  xhttp.responseType = "arraybuffer";
+  var data = new crypto_return();
+  	var form = new FormData();
+  	//form.append('demo', awnto_app_user );
+  	
   	if(awnto_app_user != "")
-		data.append('awnto_user', awnto_app_user );
-	//data.append('awnto_user_key', "1234");
+		data.set('awnto_user', awnto_app_user );
 	if( awnto_app_user_key !="")
-		data.append('awnto_user_key', awnto_app_user_key );
-//data.append('pass', CryptoJS.MD5(CryptoJS.MD5(pass)));
-//data.append('pass', pass );
-//data.append('pass', CryptoJS.MD5(pass));
+		data.set('awnto_user_key', awnto_app_user_key );
+	//data.set('demox', "12345678901234567890");
+	var ret_form=await awnto_enc_send(form,data);
+	//alert(JSON.stringify(form.enPubKey));
+	/*
+	for (var p of ret_form) {
+   	 	let name = p[0];
+    		let value = p[1];
 
-//data.append('captcha', captcha );
-  
-  xhttp.send(data);
+    		console.log(name, value)
+	}
+	*/
+  	xhttp.send(ret_form);
 }
 
-function awnto_server_require_session_loadXMLDoc() 
+async function awnto_server_require_session_loadXMLDoc() 
 {
 	
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = async function() {
   if (this.readyState == 4 && this.status == 200) {
     //if ( this.readyState == 4) {
     	//login_message.innerHTML = "connection done " +  this.readyState+":"+this.status + ";" + this.responseText  ;
-      	const obj = JSON.parse(this.responseText);
+      	const obj = JSON.parse(await awnto_enc_get(this.response));
       	//login_message.innerHTML="ok";
       	
       	if(obj.err == 0 )
@@ -199,27 +435,25 @@ function awnto_server_require_session_loadXMLDoc()
   //username = prompt("Please enter your name:", "");
   //alert( awnto_getCookie('awnto_user'));
   
-   var data = new FormData();
+   xhttp.responseType = "arraybuffer";
+  var data = new crypto_return();
+  	var form = new FormData();
   	if(awnto_app_user != "")
-		data.append('awnto_user', awnto_app_user );
-	//data.append('awnto_user_key', "1234");
+		data.set('awnto_user', awnto_app_user );
 	if( awnto_app_user_key !="")
-		data.append('awnto_user_key', awnto_app_user_key );
-//data.append('pass', CryptoJS.MD5(CryptoJS.MD5(pass)));
-//data.append('pass', pass );
-//data.append('pass', CryptoJS.MD5(pass));
-
-//data.append('captcha', captcha );
-  
-  xhttp.send(data);
+		data.set('awnto_user_key', awnto_app_user_key );
+	//data.set('demox', "12345678901234567890");
+	var ret_form=await awnto_enc_send(form,data);
+	
+  	xhttp.send(ret_form);
 }
 
 
-function awnto_server_require_signout_loadXMLDoc(x) 
+async function awnto_server_require_signout_loadXMLDoc(x) 
 {
 	
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = async function() {
   if (this.readyState == 4 && this.status == 200) {
     //if ( this.readyState == 4) {
     	//login_message.innerHTML = "connection done " +  this.readyState+":"+this.status + ";" + this.responseText  ;
@@ -246,22 +480,67 @@ function awnto_server_require_signout_loadXMLDoc(x)
   //username = prompt("Please enter your name:", "");
   //alert( awnto_getCookie('awnto_user'));
   
-  var data = new FormData();
+   xhttp.responseType = "arraybuffer";
+  var data = new crypto_return();
+  	var form = new FormData();
   	if(awnto_app_user != "")
-		data.append('awnto_user', awnto_app_user );
-	//data.append('awnto_user_key', "1234");
+		data.set('awnto_user', awnto_app_user );
 	if( awnto_app_user_key !="")
-		data.append('awnto_user_key', awnto_app_user_key );
-//data.append('pass', CryptoJS.MD5(CryptoJS.MD5(pass)));
-//data.append('pass', pass );
-//data.append('pass', CryptoJS.MD5(pass));
-
-//data.append('captcha', captcha );
-  
-  xhttp.send(data);
+		data.set('awnto_user_key', awnto_app_user_key );
+	//data.set('demox', "12345678901234567890");
+	var ret_form=await awnto_enc_send(form,data);
+	
+  	xhttp.send(ret_form);
 }
 
 
+var oncaptcha_refresh_button_i = 0 ;
+async function oncaptcha_refresh_button() 
+{
+	oncaptcha_refresh_button_i++ ;
+	var login_captcha = document.getElementById("captcha_img") ;
+	//login_captcha.src=awnto_server+"/captcha.php?awnto_session_id="+awnto_session_id+"&i="+ oncaptcha_refresh_button_i ;
+	document.getElementById("captcha_box").value="" ;
+	
+    var xhttp = new XMLHttpRequest();
+    
+  xhttp.onreadystatechange = async function() {
+  if (this.readyState == 4 && this.status == 200)
+  {
+  	//alert("done");
+  /*
+  	var keyPair = await keyPair_wt ;
+    	var enxd2 = await window.crypto.subtle.decrypt( "RSA-OAEP" , keyPair.privateKey, this.response);
+    
+      var arrayBufferView = new Uint8Array( enxd2 );
+    var blob = new Blob( [ arrayBufferView ], { type: "image/jpeg" } );
+    var urlCreator = window.URL || window.webkitURL;
+    var imageUrl = urlCreator.createObjectURL( blob );
+    //var img = document.querySelector( "#iimage" );
+    login_captcha.src = imageUrl;
+    alert(imageUrl);
+    */
+    //console.log(this.response);
+    //var keyPair = await keyPair_wt ;
+	 //data_loaded = await awnto_enc_get(this.response);
+    //var enxd2 = await window.crypto.subtle.decrypt({ name:"RSA-OAEP" } , keyPair.privateKey, this.response );
+    var dnc2 = new TextDecoder("utf-8");
+   var datax2 = dnc2.decode(this.response);
+     //alert(datax2) ;
+     login_captcha.src = 'data:image/png;base64,'+datax2;
+    
+    
+    }
+  };
+  xhttp.open("POST", awnto_server+"/captcha.php?awnto_session_id="+awnto_session_id+"&i="+ oncaptcha_refresh_button_i, true);
+  xhttp.responseType = "arraybuffer";
+  	var data = new crypto_return();
+  	var form = new FormData();
+  	
+	var ret_form=await awnto_enc_send(form,data);
+  	xhttp.send(ret_form);
+  
+}
 
 
 /*
@@ -304,6 +583,181 @@ d[k>>>24]^e[n>>>16&255]^j[g>>>8&255]^l[h&255]^c[p++],n=d[n>>>24]^e[g>>>16&255]^j
 
 
 
+/*
+// PEM encoded X.509 key
+const publicKey = 
+`-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkMT80RVwoYX19sQbBW7uajlFj
+AjU/8wjAcfWJpSDnw2nDJw7JRtaXrMCwxFENVyfkDlzVIY+H6osiiyaMbpC0nNYq
+GNkz9XhvqTBt83aGrwFFXArbudps1V7eGKoCQNqjlFFGpI9H+SAUek/jpdu+RzX7
+DF/dnqzHejteJFWKswIDAQAB
+-----END PUBLIC KEY-----`;
+
+importPublicKeyAndEncrypt();
+    
+async function importPublicKeyAndEncrypt() {
+
+    const plaintext = 'This text will be encoded UTF8 and may contain special characters like § and €.';
+                
+    try {
+        const pub = await importPublicKey(publicKey);
+        const encrypted = await encryptRSA(pub, new TextEncoder().encode(plaintext));
+        const encryptedBase64 = window.btoa(ab2str(encrypted));
+        console.log(encryptedBase64.replace(/(.{64})/g, "$1\n")); 
+    } catch(error) {
+        console.log(error);
+    }
+}
+
+async function importPublicKey(spkiPem) {       
+    return await window.crypto.subtle.importKey(
+        "spki",
+        getSpkiDer(spkiPem),
+        {
+            name: "RSA-OAEP",
+            hash: "SHA-256",
+        },
+        true,
+        ["encrypt"]
+    );
+}
+
+async function encryptRSA(key, plaintext) {
+    let encrypted = await window.crypto.subtle.encrypt(
+        {
+            name: "RSA-OAEP"
+        },
+        key,
+        plaintext
+    );
+    return encrypted;
+}
+
+function getSpkiDer(spkiPem){
+    const pemHeader = "-----BEGIN PUBLIC KEY-----";
+    const pemFooter = "-----END PUBLIC KEY-----";
+    var pemContents = spkiPem.substring(pemHeader.length, spkiPem.length - pemFooter.length);
+    var binaryDerString = window.atob(pemContents);
+    return str2ab(binaryDerString); 
+}
+
+//
+// Helper
+//
+
+// https://stackoverflow.com/a/11058858
+function str2ab(str) {
+    const buf = new ArrayBuffer(str.length);
+    const bufView = new Uint8Array(buf);
+    for (let i = 0, strLen = str.length; i < strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+}
+    
+function ab2str(buf) {
+    return String.fromCharCode.apply(null, new Uint8Array(buf));
+}
+
+
+// PEM encoded PKCS#8 key
+const privateKey = 
+`-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC6cXloNrocJ8sw
+wj8xktPmEOTfTgJT7KkUwWIGOjBB1QxApgdn5+SUHsakvEJq3Fgn+FnuuN8cfcqW
+rbT9jURtgNGinJNJ+StPM/PCxfhSv+XbkK11CV2EcJMyDB/8S/9u4E2ht/N1kT4O
+F2/mVDAq2MjjeUMq8CLmQR63ZMXB8lwmsGJEl4Rwt9WBZNcZFCfuCeBYrKRS7mtL
+zd4BTXEf0UuiNB/KJrz38TKSI47v/dRbB34wBNn0cuNLHb8t/eDaOvzV6J8SZgOW
+uL85mng6Fm77QGjUteWgJN76+YhDZgJfsRq1Q67JAy3ZXDHi5X538DcM/o+0wYEq
+kXxK3iIbAgMBAAECggEASlJj0ExIomKmmBhG8q8SM1s2sWG6gdQMjs6MEeluRT/1
+c2v79cq2Dum5y/+UBl8x8TUKPKSLpCLs+GXkiVKgHXrFlqoN+OYQArG2EUWzuODw
+czdYPhhupBXwR3oX4g41k/BsYfQfZBVzBFEJdWrIDLyAUFWNlfdGIj2BTiAoySfy
+qmamvmW8bsvc8coiGlZ28UC85/Xqx9wOzjeGoRkCH7PcTMlc9F7SxSthwX/k1VBX
+mNOHa+HzGOgO/W3k1LDqJbq2wKjZTW3iVEg2VodjxgBLMm0MueSGoI6IuaZSPMyF
+EM3gGvC2+cDBI2SL/amhiTUa/VDlTVw/IKbSuar9uQKBgQDd76M0Po5Lqh8ZhQ3o
+bhFqkfO5EBXy7HUL15cw51kVtwF6Gf/J2HNHjwsg9Nb0eJETTS6bbuVd9bn884Jo
+RS986nVTFNZ4dnjEgKjjQ8GjfzdkpbUxsRLWiIxuOQSpIUZGdMi2ctTTtspvMsDs
+jRRYdYIQCe/SDsdHGT3vcUCybwKBgQDXDz6iVnY84Fh5iDDVrQOR4lYoxCL/ikCD
+JjC6y1mjR0eVFdBPQ4j1dDSPU9lahBLby0VyagQCDp/kxQOl0z2zBLRI4I8jUtz9
+/9KW6ze7U7dQJ7OTfumd5I97OyQOG9XZwKUkRgfyb/PAMBSUSLgosi38f+OC3IN3
+qlvHFzvxFQKBgQCITpUDEmSczih5qQGIvolN1cRF5j5Ey7t7gXbnXz+Umah7kJpM
+IvdyfMVOAXJABgi8PQwiBLM0ySXo2LpARjXLV8ilNUggBktYDNktc8DrJMgltaya
+j3HNd2IglD5rjfc2cKWRgOd7/GlKcHaTEnbreYhfR2sWrWLxJOyoMfuVWwKBgFal
+CbMV6qU0LfEo8aPlBN8ttVDPVNpntP4h0NgxPXgPK8Pg+gA1UWSy4MouGg/hzkdH
+aj9ifyLlCX598a5JoT4S0x/ZeVHd/LNI8mtjcRzD6cMde7gdFbpLb5NSjIAyrsIA
+X4hxvpnqiOYRePkVIz0iLGziiaMbfMwlkrxvm/LRAoGBALPRbtSbE2pPgvOHKHTG
+Pr7gKbmsWVbOcQA8rG801T38W/UPe1XtynMEjzzQ29OaVeQwvUN9+DxFXJ6Yvwj6
+ih4Wdq109i7Oo1fDnMczOQN9DKch2eNAHrNSOMyLDCBm++wbyHAsS2T0VO8+gzLA
+BviZm5AFCQWfke4LZo5mOS10
+-----END PRIVATE KEY-----`;
+
+importPrivateKeyAndDecrypt();
+    
+async function importPrivateKeyAndDecrypt() {
+
+    // A ciphertext produced with the first code
+    const ciphertextB64 = "q/g0YQ+CbFwCb9QxAeKk/X8vjUUKpBGCVe6OvFoBlTfRF24BQlWpLFhxVQv+Gn29CzAXfSJjU+C8taYXQ4wofyOaRx0etkATDbmIV1gVdxNnqVKTx2RSj1L3uACZ3aWYIGRjtaBMBNAW81mPEjxEWCvRW3uI/rOn3LAc4N05CkofOnsIpaafgcEjhZoTxp1Dpkm328bwRJ3g1Dn+vQk6JBiAXSiF7GHvMvnD6q+CQiO1dcv0lrrXlibE8/P2LHWpqQ9g5xWWUHl70q2WB+IxLgX9OkqX8XQ1GHjP5EaQFfo1HerBpa+Uf5DaienI/XT4n64DWM1S7t0dbhFDskc9HQ==";
+        
+    try {
+        const priv = await importPrivateKey(privateKey);
+        const decrypted = await decryptRSA(priv, str2ab(window.atob(ciphertextB64)));
+        console.log(decrypted);
+    } catch(error) {
+        console.log(error);
+    }
+}
+
+async function importPrivateKey(pkcs8Pem) {     
+    return await window.crypto.subtle.importKey(
+        "pkcs8",
+        getPkcs8Der(pkcs8Pem),
+        {
+            name: "RSA-OAEP",
+            hash: "SHA-256",
+        },
+        true,
+        ["decrypt"]
+    );
+}
+
+async function decryptRSA(key, ciphertext) {
+    let decrypted = await window.crypto.subtle.decrypt(
+        {
+            name: "RSA-OAEP"
+        },
+        key,
+        ciphertext
+    );
+    return new TextDecoder().decode(decrypted);
+}
+
+function getPkcs8Der(pkcs8Pem){
+    const pemHeader = "-----BEGIN PRIVATE KEY-----";
+    const pemFooter = "-----END PRIVATE KEY-----";
+    var pemContents = pkcs8Pem.substring(pemHeader.length, pkcs8Pem.length - pemFooter.length);
+    var binaryDerString = window.atob(pemContents);
+    return str2ab(binaryDerString); 
+}
+
+//
+// Helper
+//
+    
+// https://stackoverflow.com/a/11058858
+function str2ab(str) {
+    const buf = new ArrayBuffer(str.length);
+    const bufView = new Uint8Array(buf);
+    for (let i = 0, strLen = str.length; i < strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+}
+    
+function ab2str(buf) {
+    return String.fromCharCode.apply(null, new Uint8Array(buf));
+}
+
+*/
 
 
 
