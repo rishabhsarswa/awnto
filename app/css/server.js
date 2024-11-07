@@ -55,6 +55,7 @@ function awnto_server_loop()
 	{
 		//alert(awnto_server_loop_web_redirect);
 		window.location=awnto_server_loop_web_redirect;
+		awnto_server_loop_web_redirect="";
 	}
 
 }
