@@ -1,6 +1,6 @@
 
 //var awnto_server="http://127.0.0.1:7180/api" ;
-var awnto_server = "http://remote.awnto.com/xgate_site/api";
+var awnto_server = "https://remote.awnto.com/xgate_site/api";
 
 var awnto_server_loop_web_redirect="";
 var awnto_session_id="";
