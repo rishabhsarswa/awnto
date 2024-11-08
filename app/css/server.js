@@ -636,7 +636,7 @@ async function awnto_server_require_signout_loadXMLDoc(x)
 
 var oncaptcha_refresh_button_i = 0 ;
 
-function oncaptcha_refresh_button()
+function oncaptcha_refresh_button_old()
 {
 	oncaptcha_refresh_button_i++ ;
 	var login_captcha = document.getElementById("captcha_img") ;
@@ -644,7 +644,7 @@ function oncaptcha_refresh_button()
 	var login_captcha = document.getElementById("captcha_box").value="" ;
 
 }
-async function oncaptcha_refresh_button2() 
+async function oncaptcha_refresh_button() 
 {
 	oncaptcha_refresh_button_i++ ;
 	var login_captcha = document.getElementById("captcha_img") ;
@@ -681,7 +681,7 @@ async function oncaptcha_refresh_button2()
     
     }
   };
-  xhttp.open("POST", awnto_server+"/captcha.php?awnto_session_id="+awnto_session_id+"&i="+ oncaptcha_refresh_button_i, true);
+  xhttp.open("POST", awnto_server+"/captcha2.php?awnto_session_id="+awnto_session_id+"&i="+ oncaptcha_refresh_button_i, true);
   xhttp.responseType = "arraybuffer";
   	var data = new crypto_return();
   	var form = new FormData();
