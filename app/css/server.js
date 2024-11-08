@@ -673,8 +673,9 @@ async function oncaptcha_refresh_button()
     //var keyPair = await keyPair_wt ;
 	 //data_loaded = await awnto_enc_get(this.response);
     //var enxd2 = await window.crypto.subtle.decrypt({ name:"RSA-OAEP" } , keyPair.privateKey, this.response );
-    var dnc2 = new TextDecoder("utf-8");
-   var datax2 = dnc2.decode(this.response);
+   // var dnc2 = new TextDecoder("utf-8");
+   //var datax2 = dnc2.decode(this.response);
+   	var datax2= await awnto_enc_get(this.response) ;
      //alert(datax2) ;
      login_captcha.src = 'data:image/png;base64,'+datax2;
     
