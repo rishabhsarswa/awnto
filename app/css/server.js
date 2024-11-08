@@ -1,6 +1,7 @@
 
 //var awnto_server="http://127.0.0.1:7180/api" ;
 var awnto_server = "https://remote.awnto.com/xgate_site/api";
+//var awnto_server="https://serv.awnto.com/cli/xgate/site/api" ;
 
 var awnto_server_loop_web_redirect="";
 var awnto_session_id="";
@@ -11,6 +12,8 @@ var awnto_app_user_key="";
 async function awnto_server_boot()
 {
 
+	awnto_load_track("Booting for Awnto server");
+	
 	//awnto_session_id=CryptoJS.MD5(Math.random());
 	var i_random=""+Date.now()+"_"+Math.floor( Math.random()*1024*1024*1024 );
 	awnto_session_id=""+CryptoJS.MD5(i_random);
@@ -39,6 +42,7 @@ async function awnto_server_boot()
   	{
  		await new Promise(r => setTimeout(r, 2000));
   	}*/
+  	awnto_load_track("Booting for Awnto server done");
 
 }
 function awnto_server_login(user,key)
@@ -67,7 +71,7 @@ function awnto_server_require_login()
 }
 function awnto_server_require_session()
 {
-
+	
 	awnto_server_require_session_loadXMLDoc();
 
 }
@@ -114,7 +118,11 @@ class crypto_return
 		return this[name] ;
 	}
 }
-
+class crypto_awnto_bundle
+{
+	//var publicKey ;
+	//var privateKey ;
+}
 
 async function awnto_jwk_importPublicKey(key) {
   return await window.crypto.subtle.importKey(
@@ -128,7 +136,18 @@ async function awnto_jwk_importPublicKey(key) {
     ["encrypt"]         // The intended use for the key (encryption in this case)
   );
 }
-
+async function awnto_jwk_importPublicKey_de(key) {
+  return await window.crypto.subtle.importKey(
+    "jwk",             // The format of the key to be imported (SubjectPublicKeyInfo)
+    key,               // The public key data
+    {
+      name: "RSA-OAEP", // The algorithm the imported key will be used with
+      hash: "SHA-256",  // The hash function to be used with the algorithm
+    },
+    true,               // Whether the key is extractable
+    ["decrypt"]         // The intended use for the key (encryption in this case)
+  );
+}
 async function awnto_spki_importPublicKey(spkiPem) {       
     return await window.crypto.subtle.importKey(
         "spki",
@@ -141,7 +160,20 @@ async function awnto_spki_importPublicKey(spkiPem) {
         ["encrypt"]
     );
 }
-
+/*
+async function awnto_spki_importPublicKey2(key) {       
+    return await window.crypto.subtle.importKey(
+        "spki",
+        key,
+        {
+            name: "RSA-OAEP",
+            hash: "SHA-256",
+        },
+        true,
+        ["encrypt"]
+    );
+}
+*/
 function getSpkiDer(spkiPem){
     const pemHeader = "-----BEGIN PUBLIC KEY-----";
     const pemFooter = "-----END PUBLIC KEY-----";
@@ -160,21 +192,63 @@ function str2ab(str) {
 }
 
 
-var keyPair_wt = window.crypto.subtle.generateKey(
-  {
-    name: "RSA-OAEP",
-    modulusLength: 4096,
-    publicExponent: new Uint8Array([1, 0, 1]),
-    hash: "SHA-256",
-  },
-  true,
-  ["encrypt", "decrypt"],
-);
+var keyPair_wt = awnto_enc_getgen_keys();
+
+async function awnto_enc_getgen_keys()
+{
+	var extime=0;
+	if(localStorage && 'awnto_app_enc_keytime' in localStorage )
+	{
+		extime = ~~( (Date.now() - localStorage.awnto_app_enc_keytime)/1000 ) ;
+	}
+	//alert(extime);
+	if( extime < 600 && localStorage && 'awnto_app_enc_keytime' in localStorage && 'awnto_app_enc_pubkey' in localStorage && 'awnto_app_enc_prikey' in localStorage )
+	{
+		awnto_load_track("using saved user keys");	
+		var keyPair = new crypto_awnto_bundle() ;
+		//alert(localStorage.awnto_app_enc_pubkey);
+		keyPair.publicKey = await awnto_jwk_importPublicKey(JSON.parse(localStorage.awnto_app_enc_pubkey)) ;
+		keyPair.privateKey = await awnto_jwk_importPublicKey_de(JSON.parse(localStorage.awnto_app_enc_prikey)) ;
+		//keyPair.privateKey = await window.crypto.subtle.importKey("jwk",localStorage.awnto_app_enc_prikey);
+		//alert("using saved keys");
+		awnto_load_track("using saved user keys done");
+	}
+	else
+	{
+		awnto_load_track("generating user keys");
+		var keyPair = await window.crypto.subtle.generateKey(
+  			{
+    				name: "RSA-OAEP",
+			    	modulusLength: 4096,
+			    	publicExponent: new Uint8Array([1, 0, 1]),
+			    	hash: "SHA-256",
+			},
+			true,
+	  		["encrypt", "decrypt"],
+		);
+		//var pubKey_spki = await crypto.subtle.exportKey("spki", keyPair.publicKey);
+    		//var priKey_spki = await crypto.subtle.exportKey("jwk", keyPair.privateKey);
+    	
+		var pubKey_jwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+    		var priKey_jwk = await crypto.subtle.exportKey("jwk", keyPair.privateKey);	
+		//console.log(JSON.stringify(pubKey_jwk));
+		localStorage && (localStorage.awnto_app_enc_pubkey = JSON.stringify(pubKey_jwk));
+		localStorage && (localStorage.awnto_app_enc_prikey = JSON.stringify(priKey_jwk));
+		localStorage && (localStorage.awnto_app_enc_keytime = Date.now());
+		
+		awnto_load_track("generated user keys saved done");
+		//alert(Date.now());
+	}
+	
+	return keyPair ;
+}
 
 async function awnto_enc_boot()
 {
 
 	var keyPair = await keyPair_wt ;
+	
+	
     
    
    
@@ -183,8 +257,13 @@ async function awnto_enc_boot()
    //is_data_booted=1;
 }
 
+function awnto_load_track(x)
+{
+	//console.log(x);
+}
 async function awnto_enc_send(form,crypto_ret)
 {
+	awnto_load_track("encrypting request");
 	var keyPair = await keyPair_wt ;
 
 	if (!("TextEncoder" in window)) 
@@ -220,6 +299,7 @@ var x509key = [
 	//var enxcr=[];
 	for (var i=0, len=return_strings['all'] ; i < len ; i++) 
     	{
+    		
 	 	enxc[i] = await window.crypto.subtle.encrypt({ name:"RSA-OAEP" },imported_server_pubkey, stringToArrayBuffer(return_strings[i]));
 	 	//appendBuffer(buffer1, buffer2)
 	 	
@@ -230,6 +310,7 @@ var x509key = [
     	//var form = new FormData();
 	form.append("enc_data", blobc );
 	//form.append('enPubKey',JSON.stringify(pubKey));
+	awnto_load_track("encrypting request done");
   	return await form;
 }
 function stringToArrayBuffer(str){
@@ -283,15 +364,60 @@ function split_string_partwise(str,n){
 }
 //encrypt_partwise("shfilahelifglqeriagflaedfgqlwegfejkldgfvlbdflwselfvlkweflwefgbwledbfklsjdgbfvsgkjdfvbjksbfkjsdbjksbdjkfbsjkdb");
 //encrypt_partwise("1234");
+function awnto_split_blob(file)
+{
+	console.log(file);
+	var chunkSize = 128;
+  var fileSize = file.size;
+  var chunks = Math.ceil(file.size/chunkSize,chunkSize);
+  var chunk = 0;
+
+  console.log('file size..',fileSize);
+  console.log('chunks...',chunks);
+/*
+  while (chunk <= chunks) {
+      var offset = chunk*chunkSize;
+      console.log('current chunk..', chunk);
+      console.log('offset...', chunk*chunkSize);
+      console.log('file blob from offset...', offset)
+      console.log(file.slice(offset,chunkSize));
+      chunk++;*/
+}
+
+
+function awnto_split_arraybuff(abuff)
+{
+	var ret=[];
+	var offset=512;
+	var parts=~~(abuff.byteLength/offset);
+	ret['all']=parts;
+	for(var i=0 ; i < parts ; i++ )
+	{
+		ret[i]=abuff.slice(i*offset,i*offset+offset);
+	}
+	//console.log(parts);
+	//console.log(abuff.slice(0,offset));
+	return ret ;
+}
 async function awnto_enc_get(ret)
 {
+	awnto_load_track("decrypting request");
 	var keyPair = await keyPair_wt ;
-	 data_loaded = ret;
-    var enxd2 = await window.crypto.subtle.decrypt({ name:"RSA-OAEP" } , keyPair.privateKey, data_loaded);
-    var dnc2 = new TextDecoder("utf-8");
-   var datax2 = dnc2.decode(enxd2);
-     return datax2 ;
-  
+	var data_loaded = ret;
+	var chunks= awnto_split_arraybuff(ret);
+	var enxd = [] ;
+	var dnc2 = new TextDecoder("utf-8");
+	var datax2="";
+	for(var i=0 ; i < chunks['all'] ; i++ )
+	{
+		enxd[i] = await window.crypto.subtle.decrypt({ name:"RSA-OAEP" } , keyPair.privateKey, chunks[i] );
+		datax2 += dnc2.decode(enxd[i]);
+	}
+    	//var enxd2 = await window.crypto.subtle.decrypt({ name:"RSA-OAEP" } , keyPair.privateKey, data_loaded);
+    	
+   	//var d
+   	awnto_load_track("decrypting request done");
+     	return datax2 ;
 }
 
 function awnto_setCookie(cname,cvalue,exdays) {
@@ -342,7 +468,20 @@ async function awnto_server_require_login_loadXMLDoc()
 {
 	
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = async function() {
+  //var on_loadtime=Date.now();
+  xhttp.onprogress=function(evt){
+  	if (evt.lengthComputable) 
+   	{  
+     		//var percentComplete = (evt.loaded / evt.total) * 100;  
+     		document.getElementById("awnto_server_loading_page_cont").innerHTML="Loading <br>State="+this.readyState+"; Status="+this.status+";<br>"+evt.loaded+"bytes";
+     	
+   	} 
+  };
+  xhttp.onreadystatechange = async function(evt) {
+  	document.getElementById("awnto_server_loading_page_cont").innerHTML="Loading <br>State="+this.readyState+"; Status="+this.status+";";
+  	
+  	//console.log(on_loadtime);
+  	
   if (this.readyState == 4 && this.status == 200) {
   
   	//alert( await awnto_enc_get(this.response)) ;
@@ -496,6 +635,7 @@ async function awnto_server_require_signout_loadXMLDoc(x)
 
 
 var oncaptcha_refresh_button_i = 0 ;
+
 function oncaptcha_refresh_button()
 {
 	oncaptcha_refresh_button_i++ ;
@@ -503,6 +643,52 @@ function oncaptcha_refresh_button()
 	login_captcha.src=awnto_server+"/captcha.php?awnto_session_id="+awnto_session_id+"&i="+ oncaptcha_refresh_button_i ;
 	var login_captcha = document.getElementById("captcha_box").value="" ;
 
+}
+async function oncaptcha_refresh_button2() 
+{
+	oncaptcha_refresh_button_i++ ;
+	var login_captcha = document.getElementById("captcha_img") ;
+	//login_captcha.src=awnto_server+"/captcha.php?awnto_session_id="+awnto_session_id+"&i="+ oncaptcha_refresh_button_i ;
+	document.getElementById("captcha_box").value="" ;
+	
+    var xhttp = new XMLHttpRequest();
+    
+  xhttp.onreadystatechange = async function() {
+  if (this.readyState == 4 && this.status == 200)
+  {
+  	//alert("done");
+  /*
+  	var keyPair = await keyPair_wt ;
+    	var enxd2 = await window.crypto.subtle.decrypt( "RSA-OAEP" , keyPair.privateKey, this.response);
+    
+      var arrayBufferView = new Uint8Array( enxd2 );
+    var blob = new Blob( [ arrayBufferView ], { type: "image/jpeg" } );
+    var urlCreator = window.URL || window.webkitURL;
+    var imageUrl = urlCreator.createObjectURL( blob );
+    //var img = document.querySelector( "#iimage" );
+    login_captcha.src = imageUrl;
+    alert(imageUrl);
+    */
+    //console.log(this.response);
+    //var keyPair = await keyPair_wt ;
+	 //data_loaded = await awnto_enc_get(this.response);
+    //var enxd2 = await window.crypto.subtle.decrypt({ name:"RSA-OAEP" } , keyPair.privateKey, this.response );
+    var dnc2 = new TextDecoder("utf-8");
+   var datax2 = dnc2.decode(this.response);
+     //alert(datax2) ;
+     login_captcha.src = 'data:image/png;base64,'+datax2;
+    
+    
+    }
+  };
+  xhttp.open("POST", awnto_server+"/captcha.php?awnto_session_id="+awnto_session_id+"&i="+ oncaptcha_refresh_button_i, true);
+  xhttp.responseType = "arraybuffer";
+  	var data = new crypto_return();
+  	var form = new FormData();
+  	
+	var ret_form=await awnto_enc_send(form,data);
+  	xhttp.send(ret_form);
+  
 }
 
 
