@@ -65,8 +65,15 @@ function awnto_server_loop()
 }
 function awnto_server_require_login()
 {
-
-	awnto_server_require_login_loadXMLDoc();
+	if(awnto_app_user != "" && awnto_app_user != "")
+	{
+		awnto_server_require_login_loadXMLDoc();
+	}
+	else
+	{
+		document.getElementById("awnto_server_loading_page").style.display="none";
+	}
+	
 
 }
 function awnto_server_require_session()
@@ -494,7 +501,9 @@ async function awnto_server_require_login_loadXMLDoc()
       	}
       	else
       	{
-      		document.getElementById("awnto_server_loading_page").style.display="none";
+      		
+      			localStorage && (localStorage.awnto_app_user = ""); 
+      			localStorage && (localStorage.awnto_app_user_key = "");	document.getElementById("awnto_server_loading_page").style.display="none";
       	}
       	
     }
@@ -549,6 +558,8 @@ async function awnto_server_require_session_loadXMLDoc()
       	}
       	else
       	{
+      		localStorage && (localStorage.awnto_app_user = ""); 
+      		localStorage && (localStorage.awnto_app_user_key = "");
       		window.location='login.html';
       		//awnto_server_loop_web_redirect='login.html';
       		//window.location='error.html';
