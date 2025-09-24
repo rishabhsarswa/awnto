@@ -1,0 +1,26 @@
+
+<title name="Awnto">
+<head name="Awnto">
+<text>
+
+</text>
+<link action="open_menu" view="inline" name="Menu" icon="menu" >
+
+<text>
+
+</text>
+**RNX Linux**
+<img src="loads/rnx_logo.png" width=200 >
+<text>
+Run Desktop Linux on Android
+</text>
+<link url="https://rinix.awnto.com/docs" name="RNX OS" icon="feather" >
+
+<text>
+
+</text>
+
+<load page="contacts" >
+
+
+
