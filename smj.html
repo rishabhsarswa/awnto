@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SMJ Tree</title>
+
+  
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0px;
+}
+  table {
+      /* border-collapse: collapse;  ensures borders don’t double up */
+    
+		
+    }
+	
+    table, tr, td {
+    	padding: 0px; 
+    	margin: 0px;
+    	
+    }
+
+    td {
+      text-align: center;
+      vertical-align: top;
+    }
+
+
+a {
+  color: initial;   /* resets to default browser color */
+  text-decoration: none; /* optional: removes underline */
+}
+ 
+a:hover {
+  background-color: #cce755; /* light blue */
+  color: #333;
+  cursor: pointer;
+}
+
+/* Click (active) effect */
+a:active {
+  background-color: #cce7ff; /* darker blue */
+  color: #000;
+  cursor: crosshair;
+}
+
+
+#output {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-top: 15px;
+  white-space: pre-wrap;
+  background-color: #f9f9f9;
+}
+
+input[type="text"] {
+  width: 300px;
+  padding: 5px;
+}
+
+button {
+  padding: 6px 12px;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+hr{
+	padding: 0px; 
+    	margin: 0px;
+    	
+}
+
+
+
+#sm_map
+{
+	display:block;
+}
+@media print {
+  #sm_map {
+    page-break-inside: avoid; /* Prevent div from splitting */
+    page-break-before: auto;  /* Avoid forcing a new page */
+    page-break-after: auto;   /* Avoid forcing a new page */
+  }
+}
+
+.mem_blk
+{
+      display: inline-block; 
+      white-space: pre-wrap;   /* preserve line breaks, wrap long lines */
+      word-wrap: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 15px;
+      line-height: 1.5;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 2px;
+      overflow-y: auto;
+      text-align:center;
+      width:200px;
+      display: block;
+
+}
+.mem_blk_main
+{
+      display: inline-block; 
+      white-space: pre-wrap;   /* preserve line breaks, wrap long lines */
+      word-wrap: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 15px;
+      line-height: 1.5;
+      background: #fff;
+      border: 1px solid #bbbbbb;
+      border-radius: 8px;
+      padding: 2px;
+      overflow-y: auto;
+      text-align:center;
+      
+
+}
+.show_pphoto
+{
+	width:100px;
+}
+.show_pdetail
+{
+}
+.show_paction
+{
+	padding:2px;
+}
+</style>
+
+<script>
+
+
+
+
+
+
+
+
+var is_admin=false;
+var branch_female=true;
+
+// Copy text to clipboard
+function copyText(text) {
+  navigator.clipboard.writeText(text)
+    .then(() => {
+      console.log("Text copied to clipboard:", text);
+    })
+    .catch(err => {
+      console.error("Failed to copy:", err);
+    });
+}
+
+
+function scrollToDivRaw(target) {
+
+	//console.log("scroll to "+target);
+	
+	if(document.getElementById(target))
+	{
+		
+	  document.getElementById(target).scrollIntoView({ 
+	    behavior: "smooth",   // smooth scrolling
+	    block: "center" ,       // align to top of viewport
+	    inline: "center"
+	  });
+	  
+	 	//document.addEventListener("DOMContentLoaded", () => 
+		//{
+
+			  document.getElementById(target).scrollIntoView({ 
+			    behavior: "smooth",   // smooth scrolling
+			    block: "center" ,       // align to top of viewport
+			    inline: "center"
+			  });
+		//});
+	}
+	else
+	{
+		//console.log("error scrollToDiv: unknown target");
+	}
+}
+
+//setTimeout(show_status, 500, "Copy Done");
+function scrollToDiv(target) {
+
+	scrollToDivRaw(target);
+	//setTimeout(show_status, 500, "Copy Done");
+	setTimeout(scrollToDivRaw, 500, target);
+}
+
+	
+
+async function readFile_old(url,pro_line,pro_end) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch file: ${response.statusText}`);
+    }
+    const text = await response.text();
+    const lines = await  text.split(/\r?\n/);
+    lines.forEach((line, index) => {
+      if(line!="")
+      	pro_line(line);
+    });
+    if(pro_end)
+	    pro_end();
+}
+async function readFile(url, pro_line, pro_end) {
+  const response = await fetch(url);
+
+  if (!response.body) {
+    throw new Error("ReadableStream not supported in this environment");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+
+    // Split into lines
+    let lines = buffer.split(/\r?\n/);
+    buffer = lines.pop(); // keep incomplete line in buffer
+
+    for (const line of lines) {
+      if (line !== "") {
+        pro_line(line); // process each line as it arrives
+      }
+    }
+  }
+
+  // Handle any leftover line
+  if (buffer) {
+    pro_line(buffer);
+  }
+
+  if (pro_end) {
+    pro_end();
+  }
+}
+
+
+
+  var smj={};
+  smj.epics = {};
+  smj.links = {};
+  smj.locations = {};
+  
+  
+function load_smj_data_person(line)
+{
+	//console.log(line);
+	
+	var obj = JSON.parse(line);
+      	
+      	if(obj.epic && obj.epic!="")
+      	{
+      		//smj.epics[obj.epic] = {};
+      		smj.epics[obj.epic]=obj;
+      		
+      		
+      		
+      		      		
+      		if(obj.father && obj.father!="" )
+	      	{
+	      		if(!smj.links[obj.father])
+	      		{
+	      			//console.log("making link arr "+obj.father);
+	      			var lobj={};
+	      			smj.links[obj.father]=lobj;
+	      		}
+	      		
+	      		//console.log("adding father link "+obj.father);
+	      		
+	      		smj.links[obj.father][obj.epic]={};
+	      		var mobj={};
+	      		mobj.descendant=obj.epic;
+	      		smj.links[obj.father][obj.epic]=mobj;
+	      		
+	      		
+	      	}
+	      	      		
+      		if(obj.mother && obj.mother!="" )
+	      	{
+	      		if(!smj.links[obj.mother])
+	      		{
+	      			//console.log("making link arr "+obj.mother);
+	      			var lobj={};
+	      			smj.links[obj.mother]=lobj;
+	      		}
+	      		
+	      		//console.log("adding mother link "+obj.mother);
+	      		
+	      		smj.links[obj.mother][obj.epic]={};
+	      		var mobj={};
+	      		mobj.descendant=obj.epic;
+	      		smj.links[obj.mother][obj.epic]=mobj;
+	      		
+	      		
+	      	}
+	      	      		
+      		if(obj.partner && obj.partner!="" )
+	      	{
+	      		if(!smj.links[obj.partner])
+	      		{
+	      			//console.log("making link arr "+obj.partner);
+	      			var lobj={};
+	      			smj.links[obj.partner]=lobj;
+	      		}
+	      		
+	      		//console.log("adding partner link "+obj.partner);
+	      		
+	      		smj.links[obj.partner][obj.epic]={};
+	      		var mobj={};
+	      		mobj.partner=obj.epic;
+	      		smj.links[obj.partner][obj.epic]=mobj;
+	      		
+	      		
+	      	}
+	      	      		
+      		
+      		
+      	}
+
+}
+
+function load_smj_data_location(line)
+{
+	//console.log(line);
+	
+	var obj = JSON.parse(line);
+      	
+      	if(obj.epic && obj.epic!="")
+      	{
+      		
+      		smj.locations[obj.epic]=obj;
+      		
+      		
+      	}
+      	//console.log(obj);
+
+}
+
+function load_smj_data_end()
+{
+	const outputDiv = document.getElementById("output");
+	outputDiv.textContent = "Loading Done";
+	
+	map_lookout(lookout);
+	
+}
+const status_ele = document.getElementById("output");
+
+var load_smj_data_cmd_count=0;
+
+function load_smj_data_cmd(line)
+{
+	load_smj_data_cmd_count++;
+	const parts = line.split("\t");
+	//console.log(parts);
+	const cmd_0=parts[0];
+	if(cmd_0=="epic")
+	{
+		const cmd_1=parts[1];
+		const cmd_2=parts[2];
+		if(cmd_1=="person")
+			load_smj_data_person(cmd_2);
+		else if(cmd_1=="location")
+			load_smj_data_location(cmd_2);
+		
+	}
+	//console.log(parts);
+	//status_ele.textContent = load_smj_data_cmd_count;
+	//console.log(load_smj_data_cmd_count);
+}
+
+//var lookout='a84va4qajk8uip0pp';
+var lookout='afpvh35fow4gtojjd';
+
+document.addEventListener("DOMContentLoaded", () => 
+{
+
+	const outputDiv = document.getElementById("output");
+	const sm_map = document.getElementById("sm_map");
+	outputDiv.textContent = "Loading file...";
+
+	
+	const params = new URLSearchParams(window.location.search);
+	const va_epic = params.get("epic");
+	if(va_epic && va_epic!="")
+	{
+		lookout=va_epic;
+	}
+	
+	const va_admin = params.get("admin");
+	if(va_admin && va_epic!="")
+	{
+		is_admin=true;
+	}
+
+
+			readFile("https://rishabhsarswa.github.io/smj-data/smj_data/cache/list.txt",load_smj_data_cmd,load_smj_data_end);
+	
+});
+
+//document.getElementById("readBtn").addEventListener("click", readFile);
+//console.log(smj);
+function map_lookout_top(epic)
+{
+	var new_top=epic;
+	while(new_top!="")
+	{
+		//console.log(smj.epics[new_top].father);
+		const xlink=get_xlinks(new_top);
+		if(xlink.father && xlink.father !="")
+		{
+		
+		}
+		else
+		{
+			return new_top;
+		}
+		new_top=xlink.father;
+		
+	}
+	return new_top;
+}
+
+function show_my_name(obj)
+{
+	var name="";
+	if(print_lang=="local")
+		name=obj.lname;
+	else
+		name=obj.name;
+	if(print_mode=="block")
+	{
+		//return "<a href=\"?epic="+obj.epic+"\" >"+name+"</a>";
+		return "<a onclick=\"map_lookout('"+obj.epic+"');\" >"+name+"</a>";
+	}
+	else
+		return name;
+}
+function show_location_name(epic)
+{
+	if(epic=="")
+		return;
+	const obj=smj.locations[epic];
+	var name="";
+	if(print_lang=="local")
+		name=obj.lname;
+	else
+		name=obj.name;
+	
+	if(obj.branch && obj.branch !="")
+	{
+		const obj2=smj.locations[obj.branch];
+		
+		//console.log(obj.division);
+		if(print_lang=="local")
+			name+=","+obj2.lname;
+		else
+			name+=", "+obj2.name;
+		
+	
+	}
+	
+	
+	if(print_mode=="block")
+	{
+		//return "<a href=\"?epic="+obj.epic+"\" >"+name+"</a>";
+		return name;
+	}
+	else
+		return name;
+}
+var home_nodes={};
+home_nodes.root={};
+home_nodes.current={};
+function get_home_node(epic,type="root") // get epic-location from  epic-person 
+{
+	
+	
+	return get_home_node_raw(epic,type);
+}
+function get_home_node_raw(epic,type="root") // get epic-location from  epic-person 
+{
+	if(home_nodes[type][epic])
+	{
+		//console.log(epic+" lloc cache");
+		return home_nodes[type][epic];
+	}	
+	const self=smj.epics[epic];
+	var home="";
+	
+	if(type=="root")
+	{
+		if(self.root && self.root!="")
+		{
+			home=self.root;
+			home_nodes[type][epic]=home;
+			return home;
+		}
+	}
+	else if(type=="current")
+	if(self.current && self.current!="")
+	{
+		home=self.current;
+		home_nodes[type][epic]=home;
+		return home;
+	}
+	
+	const xlink=get_xlinks(epic);
+	
+	if(type=="current" && self.gender=="female" && xlink.total_partner==1)
+	{
+		//if(xlink.total_partner==1)
+		{
+			if(xlink.partner)
+			{
+				Object.entries(xlink.partner).forEach(([key, value]) => {
+			  	if(value && value!="")
+			  	{
+			  		
+			  		home=get_home_node(value,type);
+			  		if(home == "")
+			  			home=get_home_node(value,"root");
+			  		//if(home!="")
+			  		//console.log(self.name+":"+home);
+			  		home_nodes[type][epic]=home;
+					return home;
+			  	}
+				});
+			}
+		}
+		
+	}
+	else if(xlink.father && xlink.father!="")
+	{
+		home=get_home_node(xlink.father,type);
+		home_nodes[type][epic]=home;
+		return home;
+	
+	}
+	home_nodes[type][epic]=home;
+	return home;
+
+}
+function show_me(self,card=false)
+{
+		
+	const epic=self.epic;
+	
+	const dlink=smj.links[epic];
+
+	//console.log(dlink);
+	const xlink=get_xlinks(epic);
+	
+	//console.log(self.name);
+	//console.log(xlink);
+	
+	
+	
+	
+	
+	var tmsg="";
+	if(print_mode=="block")
+	{
+		
+		var bg_color="#D8BFD8";
+		if(self.status && self.status=="dead")
+		{
+			bg_color="white"; // male
+			if(self.gender == "male")
+				bg_color="#F0F8FF";
+			if(self.gender == "female")
+				bg_color="#FFF0F5";
+		}
+		else
+		{
+			if(self.gender == "male")
+				bg_color="#ADD8E6";
+			if(self.gender == "female")
+				bg_color="#FFB6C1";
+		}
+		var sh_style="style=\"background-color:"+bg_color+";\"";
+		var sh_id="";
+		if(card)
+			sh_id="id=\"epic_"+epic+"\"";
+		tmsg+="<div "+sh_style+"  "+sh_id+" class=\"mem_blk\">";
+		
+		
+	}
+	if(self.doc_profile_photo && self.doc_profile_photo!="")
+	{
+		if(print_mode=="block")
+		{
+			
+							var img_crt = self.epic.split("").join("/");
+				
+				var img_src="https://rishabhsarswa.github.io/smj-data/smj_data/epics/person/"+img_crt+"/main/uploads/profile/"+self.doc_profile_photo ;
+				
+				tmsg+="<img class=\"show_pphoto\" src=\""+img_src+"\" ><br>"
+						
+			
+			
+		}
+	}
+	if(print_mode=="block")
+		tmsg+="<div class=\"show_pdetail\" >";
+	
+	tmsg+=show_my_name(self);
+	
+	const desct=xlink;
+	var pp_fd=false;
+	if(desct.father && desct.father!="" )
+	{
+		const parent=smj.epics[desct.father];
+	  		pp_fd=true;
+	  	tmsg+=" <br>👨 "+show_my_name(parent);
+	}
+	if(desct.mother && desct.mother!="" )
+	{
+		const parent=smj.epics[desct.mother];
+	  		pp_fd=true;
+	  	//if(pp_fd)
+	  	//	tmsg+=" <br>&<br> "+show_my_name(parent);
+	  	//else
+	  		tmsg+=" <br>👩 "+show_my_name(parent);
+	}
+	
+	
+	
+	var home_root=get_home_node(epic);
+	if(home_root!="")
+		tmsg+="<br>🌳 "+show_location_name(home_root);
+	var home_current=get_home_node(epic,"current");
+	if(home_current!="" && home_current!=home_root)
+		tmsg+="<br>⚡ "+show_location_name(home_current);//show_location_name
+	
+	
+	{
+		
+		
+		if(is_admin)
+		{
+			tmsg+="<div class=\"show_paction\" >";
+			
+			
+			tmsg+="<a target=\"_blank\" href=\"../admin/edit_epic.php?epic="+self.epic+"\" >✏️</a> ";
+			tmsg+="<a onclick=\"copyText('"+self.epic+"');\" >&#128203;</a> ";
+			
+			if(xlink.total_partner == 0)
+				tmsg+="<a target=\"_blank\" href=\"../admin/add_new.php?rel=partner&ref="+self.epic+"\" >+❤️</a> ";
+			if(xlink.father && xlink.father!="")
+			{
+			
+			}
+			else
+				tmsg+="<a target=\"_blank\" href=\"../admin/add_new.php?rel=father&ref="+self.epic+"\" >+👨</a> ";
+			
+			tmsg+="<a target=\"_blank\" href=\"../admin/add_new.php?rel=child&ref="+self.epic+"\" >+👶</a> ";
+			
+			/*
+			if(self.status=="dead")
+				tmsg+="🔴";
+			else
+				tmsg+="🟢";
+			*/
+			
+			tmsg+=" </div>";
+				
+		}
+		
+		
+		
+	
+	}
+	
+	if(print_mode=="pre")
+		tmsg+="\n";
+	if(print_mode=="block")
+		tmsg+="</div></div>";
+		
+	return tmsg;
+		
+
+}
+
+function get_clinks(epic)
+{
+
+	const self=smj.epics[epic];
+	const dlink=smj.links[epic];
+	
+	var clink={};
+	
+	clink.partner={};
+	clink.descendant={};
+	
+	if(self.partner && self.partner!="")
+	{
+		clink.partner[self.partner]=self.partner;
+	}
+	
+	if(dlink)
+	Object.entries(dlink).forEach(([key, value]) => {
+	  	if(value.partner && value.partner!="")
+	  	{
+	  		clink.partner[value.partner]=value.partner;
+	  	}
+	  	if(value.descendant && value.descendant!="")
+	  	{
+	  		clink.descendant[value.descendant]=value.descendant;
+	  	}
+	});
+	
+	
+	
+	clink.total_partner = Object.keys(clink.partner).length ;
+	clink.total_descendant = Object.keys(clink.descendant).length ;
+	
+	
+	return clink;
+
+}
+var final_xlink={}; // for cache use
+function get_xlinks(epic)
+{
+	if(final_xlink[epic])
+		return final_xlink[epic];
+		
+		
+	var clink=get_clinks(epic);
+	
+	const self=smj.epics[epic];
+	const dlink=smj.links[epic];
+	
+	var xlink={};
+	
+	xlink.partner={};
+	xlink.descendant={};
+	
+	if(clink.descendant)
+	Object.entries(clink.descendant).forEach(([key, value]) => {
+		if(value && value!="")
+		{
+			xlink.descendant[value]=value;
+		}
+	});
+		if(clink.partner)
+		Object.entries(clink.partner).forEach(([key, value]) => {
+		  	if(value && value!="")
+		  	{
+		  		xlink.partner[value]=value;
+		  		
+		  		var clp=get_clinks(value);
+		  		const obp=smj.epics[value];
+		  		
+		  		//console.log(clp);
+		  		
+		  		if(clp.total_partner==1)
+		  		{
+		  			
+		  			if(obp.affairs && obp.affairs == true)
+		  			{
+		  			
+		  			}
+		  			else
+		  			{
+		  				if(clp.descendant)
+						Object.entries(clp.descendant).forEach(([key2, value2]) => {
+							if(value2 && value2!="")
+							xlink.descendant[value2]=value2;
+						});
+		  			
+		  			}
+		  		
+		  		
+		  		}
+		  		
+		  		
+		  	}
+		});
+	
+	
+	xlink.total_partner = Object.keys(xlink.partner).length ;
+	xlink.total_descendant = Object.keys(xlink.descendant).length ;
+	
+	
+	if(self.mother && self.mother!="")
+		xlink.mother=self.mother;
+	else
+	{
+		if(self.father && self.father!="")
+		{
+			//console.log("father found");
+			const ep_c=self.father;
+			var clp=get_clinks(ep_c);
+			const obp=smj.epics[ep_c];
+			
+				if(clp.total_partner==1)
+		  		{
+		  			
+		  			if(obp.affairs && obp.affairs == true)
+		  			{
+		  			
+		  			}
+		  			else
+		  			{
+		  				if(clp.partner)
+						Object.entries(clp.partner).forEach(([key2, value2]) => {
+							if(value2 && value2!="")
+							{
+								xlink.mother=value2;
+							}
+						});
+		  			
+		  			}
+		  		
+		  		
+		  		}
+		}
+	}
+	
+	if(self.father && self.father!="")
+		xlink.father=self.father;
+	else
+	{
+		if(self.mother && self.mother!="")
+		{
+			//console.log("father found");
+			const ep_c=self.mother;
+			var clp=get_clinks(ep_c);
+			const obp=smj.epics[ep_c];
+			
+				if(clp.total_partner==1)
+		  		{
+		  			
+		  			if(obp.affairs && obp.affairs == true)
+		  			{
+		  			
+		  			}
+		  			else
+		  			{
+		  				if(clp.partner)
+						Object.entries(clp.partner).forEach(([key2, value2]) => {
+							if(value2 && value2!="")
+							{
+								xlink.father=value2;
+							}
+						});
+		  			
+		  			}
+		  		
+		  		
+		  		}
+		}
+	}
+	
+	final_xlink[epic]=xlink;
+	return xlink;
+	
+}
+function arrange_descendants(xlink)
+{
+	var raw={};
+	var final={};
+	var count=0;
+		if(xlink.descendant)
+		Object.entries(xlink.descendant).forEach(([key, value]) => {
+		  	if(value && value!="")
+		  	{
+		  		raw[count]=value;
+		  		count++
+		  	}
+		});
+	
+		for(var i=0;i<count;i++)
+		{
+			var min=0;
+			var min_ep=0;
+			var min_key=0;
+			var boot=false;
+			if(raw)
+			Object.entries(raw).forEach(([key, value]) => {
+			  	if(value && value!="")
+			  	{
+			  		var dobj=nbt=smj.epics[value];
+			  		var nbt=999;
+			  		if(dobj.birth && dobj.birth!="")
+			  		{
+			  			nbt=dobj.birth;
+			  		}
+			  		if(!boot)
+			  		{
+			  			min=nbt;
+			  			boot=true;
+			  			min_ep=value;
+			  			min_key=key;
+			  		}
+			  		
+			  		if(nbt<min)
+			  		{
+			  			min=nbt;
+			  			min_ep=value;
+			  			min_key=key;
+			  		}
+			  	}
+			});
+			
+			if(boot)
+			{
+				final[i]=min_ep;
+				raw[min_key]="";
+			}
+		}
+	
+	return final;
+	
+	
+}
+function map_tree(epic,level)
+{
+
+	var xlink=get_xlinks(epic);
+	
+	
+	//return;
+	
+	//var tmsg="Hello";
+	const self=smj.epics[epic];
+	var tmsg=show_me(self,true);
+	
+	if(xlink.partner)
+		Object.entries(xlink.partner).forEach(([key, value]) => {
+		  	if(value && value!="")
+		  	{
+		  		tmsg+="❤️"+show_me(smj.epics[value]);
+		  	}
+		});
+	list_descendant=arrange_descendants(xlink);
+	if(xlink.total_descendant > 0)
+	{
+		tmsg+="&#129490;";
+		if(list_descendant)
+			Object.entries(list_descendant).forEach(([key, value]) => {
+			  	if(value && value!="")
+			  	{
+			  		var objd= smj.epics[value] ;
+			  		if(1==1)
+			  		{
+				  		/*
+				  		var bg_color="white"; // male
+						if(objd.gender == "male")
+							bg_color="#B0E0E6";
+						if(objd.gender == "female")
+							bg_color="#FFC0CB";
+						*/
+						var bg_color="#D8BFD8";
+						if(objd.status && objd.status=="dead")
+						{
+							bg_color="white"; // male
+							if(objd.gender == "male")
+								bg_color="#F0F8FF";
+							if(objd.gender == "female")
+								bg_color="#FFF0F5";
+						}
+						else
+						{
+							if(objd.gender == "male")
+								bg_color="#ADD8E6";
+							if(objd.gender == "female")
+								bg_color="#FFB6C1";
+						}
+						var sh_style="style=\"background-color:"+bg_color+";\"";
+				  		tmsg+="<div "+sh_style+" class=\"mem_blk\" >"+show_my_name(objd)+"</div>";
+				  	}
+				  	else
+				  	{
+				  		tmsg+=" "+show_me(objd)+" ";
+				  	}
+			  	}
+			});
+		//tmsg+="<div>";
+	}
+	
+	level++;
+
+	var msg="";
+	if(print_mode=="pre")
+		for (let i = 0; i <= 2*level; i++) {
+		  msg += " ";
+		}
+	if(print_mode=="pre")
+		msg+="|-";
+	if(print_mode=="block")
+		msg+="<table>";
+		
+	var show_descendants = true;
+	if(self.gender =="female" && branch_female == false)
+	{
+		show_descendants = false;
+	}
+	if(print_mode=="block")
+	{
+		msg+="<tr>";
+		
+		
+					var bg_color="white"; // male
+					if(epic == lookout)
+						bg_color="#90EE90";
+					var sh_style="style=\"background-color:"+bg_color+";\"";
+		
+		
+		msg+="<td colspan=\""+xlink.total_descendant+"\"><div "+sh_style+" class=\"mem_blk_main\">"+tmsg+"</div></td>";
+		msg+="</tr>";
+		msg+="<tr>";
+		
+		if( show_descendants && xlink.total_descendant > 1)
+		{
+			msg+="<td colspan=\""+xlink.total_descendant+"\">|</td>";
+			msg+="</tr>";
+			msg+="<tr>";
+			for(var i=0;i<xlink.total_descendant;i++)
+			{
+			
+				var jdx="<td style=\" padding: 0; line-height: 1px; height:1px; overflow:none;\" >";
+				//style="width:50%;"
+				
+				
+				if(i==0)
+					jdx+="<hr style=\"width:50%; float:right;\" ><br>";
+				else if( i+1 == xlink.total_descendant)
+					jdx+="<hr style=\"width:50%; float:left;\" ><br>";
+				else
+					jdx+="<hr>";
+				jdx+="</td>";
+				msg+=jdx;
+			}
+		}
+		msg+="</tr><tr>";
+	}
+	
+		if(show_descendants && list_descendant)
+		Object.entries(list_descendant).forEach(([key, value]) => {
+		  	if(value && value!="")
+		  	{
+		  		if(print_mode=="block")
+		  			msg+="<td>";
+		  		msg+=map_tree(value,level);
+				//console.log(key, value);
+		  		if(print_mode=="block")
+		  			msg+="</td>";
+		  		
+		  		
+		  	}
+		});
+	
+	if(print_mode=="block")
+		msg+="</tr></table>";
+		
+	return msg;
+	
+	
+}
+
+var print_mode="block"; // pre , block
+var print_lang="local";
+function map_lookout(epic)
+{
+	lookout=epic;	
+	const self=smj.epics[epic];	
+	
+	
+	console.log("lookout for "+self.name);	
+	
+	
+	var msg="";
+	if(print_mode=="pre")
+		msg+="<pre>";
+	
+	
+	msg+=map_tree(map_lookout_top(epic),0);
+	
+	if(print_mode=="pre")
+		msg+="</pre>";
+	
+	sm_map.innerHTML=msg;
+	
+	scrollToDiv("epic_"+epic);
+	//window.location.href ="?epic="+epic;
+	//window.location.replace("?epic="+epic);
+	if(is_admin)
+	{
+		window.history.replaceState({}, document.title, window.location.pathname+"?epic="+epic+"&admin=true");
+	}
+	else
+		window.history.replaceState({}, document.title, window.location.pathname+"?epic="+epic);
+	
+}
+
+
+
+
+
+
+
+
+</script>
+
+</head>
+<body>
+  <div id="output"></div>
+
+	<div id="sm_map"></div>
+
+</body>
+</html>
+
