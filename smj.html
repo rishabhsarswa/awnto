@@ -757,13 +757,13 @@ function show_me(self,card=false)
 	{
 		if(print_mode=="block")
 		{
-			
+			tmsg+="<div class=\"show_pphoto\">";
 							var img_crt = self.epic.split("").join("/");
 				
 				var img_src="https://rishabhsarswa.github.io/smj-data/smj_data/epics/person/"+img_crt+"/main/uploads/profile/"+self.doc_profile_photo ;
 				
 				tmsg+="<img class=\"show_pphoto\" src=\""+img_src+"\" ><br>"
-						
+						tmsg+="</div>";
 			
 			
 		}
