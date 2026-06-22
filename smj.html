@@ -3,12 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <title>SMJ Tree</title>
-
+  
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
 <style>
 body {
   font-family: Arial, sans-serif;
   margin: 0px;
+  background: url('https://rishabhsarswa.github.io/smj-data/assets/wall.jpg') center/cover no-repeat fixed,
+              rgba(255, 255, 255, 0.2); /* semi-transparent overlay color */
+  background-blend-mode: overlay;
+    /* Optional extras */
+  background-attachment: fixed;   /* stays in place while scrolling */
+  background-size: cover;         /* fills the screen */
+  background-repeat: no-repeat;   /* no tiling */
+  background-position: center;
+}
+#sm_map_wrap
+{
+	position: fixed;
+	width:100%;
+	top:0px;
+	height: calc(100% - 30px);
+	
+}
+#sm_map_zoomer
+{
+	overflow: scroll;
+	position: fixed;
+	width:100%;
+	top:0px;
+	
+	height: 100% ;
+	
+}
+#sm_map_zoomer_pad
+{
+	position : absolute;
+	width:100%;
+	height: calc(100% - 0px);
+}
+
+#sm_control
+{
+	position: fixed;
+	width:100%;
+	bottom:0px;
+	height: calc(20px );
+	padding:10px;
+	text-align:center;
 }
   table {
       /* border-collapse: collapse;  ensures borders don’t double up */
@@ -46,13 +89,38 @@ a:active {
   cursor: crosshair;
 }
 
+.link {
+  color: initial;   /* resets to default browser color */
+  text-decoration: none; /* optional: removes underline */
+  background-color: #eeeeee;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding : 2px;
+}
+ 
+.link:hover {
+  background-color: #cce755; /* light blue */
+  color: #333;
+  cursor: pointer;
+}
 
+/* Click (active) effect */
+.link:active {
+  background-color: #cce7ff; /* darker blue */
+  color: #000;
+  cursor: crosshair;
+}
+
+.g-right
+{
+	float:left;
+}
 #output {
   border: 1px solid #ccc;
   padding: 10px;
   margin-top: 15px;
   white-space: pre-wrap;
-  background-color: #f9f9f9;
+  background-color: #f9f9f955;
 }
 
 input[type="text"] {
@@ -132,11 +200,21 @@ hr{
 {
 	padding:2px;
 }
+.card_base_active
+{
+	background-color:#90EE90AA;
+}
+.card_base
+{
+	background-color:#ffffff33;
+}
+#map_scale
+{
+	width:calc(200px);
+}
+
 </style>
-
-
-	
-    
+		
 <!-- Google Analytics -->
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-135386004-1"></script>
@@ -151,11 +229,7 @@ hr{
 <!-- /Google Analytics -->
 
     
-
-
-
-	
-<script>
+	<script>
 
 
 
@@ -197,7 +271,7 @@ function scrollToDivRaw(target) {
 
 			  document.getElementById(target).scrollIntoView({ 
 			    behavior: "smooth",   // smooth scrolling
-			    block: "center" ,       // align to top of viewport
+			         // align to top of viewport  block: "center" , 
 			    inline: "center"
 			  });
 		//});
@@ -431,7 +505,64 @@ document.addEventListener("DOMContentLoaded", () =>
 
 
 			readFile("https://rishabhsarswa.github.io/smj-data/smj_data/cache/list.txt",load_smj_data_cmd,load_smj_data_end);
+		
 	
+	//const sm_map = document.getElementById('sm_map');
+	const sm_map_wrap = document.getElementById('sm_map_wrap');
+	const sm_map_zoomer = document.getElementById('sm_map_zoomer');
+ 	const seekBar = document.getElementById('map_scale');
+ 	
+ 	
+ 	//const sm_map_wrap_start_base = document.getElementById('sm_map_wrap_start_base');
+ 	//const sm_map_wrap_end_base = document.getElementById('sm_map_wrap_end_base');
+ 	//const sm_map_zoomer_pad = document.getElementById('sm_map_zoomer_pad');
+ 
+ //sm_map_zoomer.style.transform = `scale(0.5)`;
+ 
+ //sm_map_zoomer.style.width=sm_map_wrap.clientWidth*2+"px";
+ 
+ 
+ //sm_map_zoomer.style.left = "-"+wwi/2+"px";
+
+	var scaled=1;
+  
+  function set_scale(scale)
+  {
+    	scaled=scale;
+    	var wwi=sm_map_wrap.clientWidth;
+ 	var whi=sm_map_wrap.clientHeight;
+   
+    	//var scale=this.value/100;
+    	sm_map_zoomer.style.transform = `scale(${scale})`;
+    	sm_map_zoomer.style.width=wwi/scale+"px";
+    	sm_map_zoomer.style.height=whi/scale+"px";
+    	
+    	//sm_map_wrap_end_base.style.height=50/scale+"px";
+    	//sm_map_zoomer_pad.style.height=whi+"px";
+    	//sm_map_wrap_start_base.style.height=50/scale+"px";
+    	
+    	sm_map_zoomer.style.left = "-"+(wwi*(1-scale)/(2*scale))+"px";
+    	sm_map_zoomer.style.top = "-"+(whi*(1-scale)/(2*scale))+"px";
+    	//console.log(wwi);
+    	
+    	scrollToDiv("epic_"+lookout);
+    	
+  }
+  
+  seekBar.oninput = function() {
+  	set_scale(this.value/100);
+  };
+  
+  set_scale(0.5);
+  
+  window.addEventListener("resize", () => {
+    set_scale(scaled);
+  });
+
+  	
+  outputDiv.style.display="none";
+
+
 });
 
 //document.getElementById("readBtn").addEventListener("click", readFile);
@@ -1038,13 +1169,13 @@ function map_tree(epic,level)
 		msg+="<tr>";
 		
 		
-					var bg_color="white"; // male
+					var bg_card="card_base"; // male
 					if(epic == lookout)
-						bg_color="#90EE90";
-					var sh_style="style=\"background-color:"+bg_color+";\"";
+						bg_card="card_base_active";
+					var sh_add_class=bg_card;
 		
 		
-		msg+="<td colspan=\""+xlink.total_descendant+"\"><div "+sh_style+" class=\"mem_blk_main\">"+tmsg+"</div></td>";
+		msg+="<td colspan=\""+xlink.total_descendant+"\"><div  class=\"mem_blk_main "+sh_add_class+"\">"+tmsg+"</div></td>";
 		msg+="</tr>";
 		msg+="<tr>";
 		
@@ -1133,19 +1264,26 @@ function map_lookout(epic)
 
 
 
-
-
-
-
-
 </script>
 
 </head>
 <body>
   <div id="output"></div>
 
-	<div id="sm_map"></div>
+	<div id="sm_map_wrap">
+		<div id="sm_map_zoomer">
+			<div id="sm_map_zoomer_pad">
+				
+				<div id="sm_map"></div>
+				
+			</div>
+		</div>
+	</div>
+	<div id="sm_control">
+		<span class="g-right" >📐 <input class="" id="map_scale" type="range" min="10" max="100" value="50"></span>
+		<span class="g-right" >&nbsp; &nbsp; <a href="whatsapp://send?phone=919680724566&text=Hi%21%0A..." class="link" >💬</a></span>
 
+	</div>
 </body>
 </html>
 
