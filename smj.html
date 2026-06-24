@@ -222,6 +222,27 @@ hr{
       object-fit: cover;   /* ensures video fills screen */
       z-index: -1;         /* keeps it behind content */
     }
+#bg_promt
+{
+
+	position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000000dd;
+      color:#dddddd;
+      
+       display: flex;
+  justify-content: center; /* horizontal */
+  align-items: center;     /* vertical */
+
+}
+#bg_promt_base
+{
+	padding:20px;
+	text-align:center;
+}
 </style>
 		
 <!-- Google Analytics -->
@@ -578,7 +599,7 @@ function bg_vi_play()
 }
 
  const video = document.getElementById("bg_vi_play");
-
+	const bg_promt = document.getElementById("bg_promt");
       // Listen for any user activity
       const startVideo = () => {
         video.muted = false;   // enable sound
@@ -586,9 +607,10 @@ function bg_vi_play()
         //video.play();
         //document.body.removeEventListener("pointerdown", startVideo);
        // document.body.removeEventListener("pointermove", startVideo);
+       bg_promt.style.display="none";
       };
 
-      document.body.addEventListener("click", startVideo);
+      document.getElementById("bg_promt_hide").addEventListener("click", startVideo);
       //document.body.addEventListener("pointermove", startVideo);
 
 });
@@ -1314,6 +1336,17 @@ function map_lookout(epic)
 				<div id="sm_map"></div>
 				
 			</div>
+		</div>
+	</div>
+	<div id="bg_promt">
+		<div id="bg_promt_base" ><h1>
+		श्री दुर्गाराम सारस्वा जी का परिवार लालमदेसर मगरा । 
+		
+व्यक्तियों के नाम पे click करके उनके परिवार को भी देखो । 
+
+इस list का कार्य निरंतर प्रगति पे रहेगा।
+<br></h1>
+		<button id="bg_promt_hide" ><h1>Continue</h1></button>
 		</div>
 	</div>
 	
