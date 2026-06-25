@@ -698,7 +698,7 @@ function map_lookout_top(epic)
 	return new_top;
 }
 
-function show_my_name(obj)
+function show_my_name(obj,ref)
 {
 	var name="";
 	if(print_lang=="local")
@@ -708,7 +708,7 @@ function show_my_name(obj)
 	if(print_mode=="block")
 	{
 		//return "<a href=\"?epic="+obj.epic+"\" >"+name+"</a>";
-		return "<a class=\"name_in_card\" onclick=\"map_lookout('"+obj.epic+"');\" >"+name+"</a>";
+		return "<a class=\"name_in_card\" onclick=\"map_lookout_ref('"+obj.epic+"','"+ref+"');\" >"+name+"</a>";
 	}
 	else
 		return name;
@@ -881,7 +881,7 @@ function show_me(self,card=false)
 	if(print_mode=="block")
 		tmsg+="<div class=\"show_pdetail\" >";
 	
-	tmsg+=show_my_name(self);
+	tmsg+=show_my_name(self,self.epic);
 	
 	const desct=xlink;
 	var pp_fd=false;
@@ -889,7 +889,7 @@ function show_me(self,card=false)
 	{
 		const parent=smj.epics[desct.father];
 	  		pp_fd=true;
-	  	tmsg+=" <br>👨 "+show_my_name(parent);
+	  	tmsg+=" <br>👨 "+show_my_name(parent,self.epic);
 	}
 	if(desct.mother && desct.mother!="" )
 	{
@@ -898,7 +898,7 @@ function show_me(self,card=false)
 	  	//if(pp_fd)
 	  	//	tmsg+=" <br>&<br> "+show_my_name(parent);
 	  	//else
-	  		tmsg+=" <br>👩 "+show_my_name(parent);
+	  		tmsg+=" <br>👩 "+show_my_name(parent,self.epic);
 	}
 	
 	
@@ -1247,7 +1247,7 @@ function map_tree(epic,level)
 								bg_color="#FFB6C1";
 						}
 						var sh_style="style=\"background-color:"+bg_color+bg_opacity+";\"";
-				  		tmsg+="<div "+sh_style+" class=\"mem_blk\" >"+show_my_name(objd)+"</div>";
+				  		tmsg+="<div "+sh_style+" class=\"mem_blk\" >"+show_my_name(objd,self.epic)+"</div>";
 				  	}
 				  	else
 				  	{
@@ -1376,9 +1376,8 @@ function map_lookout_raw(epic)
 		window.history.replaceState({}, document.title, window.location.pathname+"?epic="+epic);
 	
 }
-function map_lookout(epic)
+function add_epic_history(epic)
 {
-	
 	if(epic_history.level>0 && epic == lookout)
 	{
 	
@@ -1390,6 +1389,18 @@ function map_lookout(epic)
 	
 	}
 	console.log(epic_history.level);
+}
+function map_lookout(epic)
+{
+	
+	add_epic_history(epic);
+	
+	map_lookout_raw(epic);
+}
+function map_lookout_ref(epic,ref)
+{
+	add_epic_history(ref);
+	add_epic_history(epic);
 	
 	map_lookout_raw(epic);
 }
