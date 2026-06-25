@@ -18,7 +18,24 @@ body {
   background-size: cover;         /* fills the screen */
   background-repeat: no-repeat;   /* no tiling */
   background-position: center;
+  
+  
+  
+  
+  
 }
+.name_in_card
+{
+	font-weight: bold;
+  color: black; /* Text color */
+  text-shadow: 
+    -1px -1px 0 #aaaaaaaa,  
+     1px -1px 0 #aaaaaaaa,
+    -1px  1px 0 #aaaaaaaa,
+     1px  1px 0 #aaaaaaaa; /* Creates border effect */
+
+}
+
 #sm_map_wrap
 {
 	position: fixed;
@@ -73,7 +90,7 @@ body {
 
 
 a {
-  color: initial;   /* resets to default browser color */
+  color: black;   /* resets to default browser color */
   text-decoration: none; /* optional: removes underline */
 }
  
@@ -203,7 +220,7 @@ hr{
 }
 .card_base_active
 {
-	background-color:#90EE90AA;
+	background-color:#00000066;
 }
 .card_base
 {
@@ -648,7 +665,7 @@ function show_my_name(obj)
 	if(print_mode=="block")
 	{
 		//return "<a href=\"?epic="+obj.epic+"\" >"+name+"</a>";
-		return "<a onclick=\"map_lookout('"+obj.epic+"');\" >"+name+"</a>";
+		return "<a class=\"name_in_card\" onclick=\"map_lookout('"+obj.epic+"');\" >"+name+"</a>";
 	}
 	else
 		return name;
@@ -778,7 +795,7 @@ function show_me(self,card=false)
 	var tmsg="";
 	if(print_mode=="block")
 	{
-		var bg_opacity="AA";
+		var bg_opacity="CC";
 		var bg_color="#D8BFD8";
 		if(self.status && self.status=="dead")
 		{
@@ -1169,7 +1186,7 @@ function map_tree(epic,level)
 						if(objd.gender == "female")
 							bg_color="#FFC0CB";
 						*/
-						var bg_opacity="AA";
+						var bg_opacity="CC";
 						var bg_color="#D8BFD8";
 						if(objd.status && objd.status=="dead")
 						{
