@@ -1380,11 +1380,7 @@ function map_lookout_raw(epic)
 }
 function add_epic_history(epic)
 {
-	if(epic_history.level>0 && epic == lookout)
-	{
-	
-	}
-	else
+	if( epic_history.level == 0 || epic != lookout )
 	{
 		epic_history.list[epic_history.level]=epic;
 		epic_history.level++;
@@ -1398,13 +1394,16 @@ function map_lookout(epic)
 	add_epic_history(epic);
 	
 	map_lookout_raw(epic);
+
 }
 function map_lookout_ref(epic,ref)
 {
-	add_epic_history(ref);
+	if(epic!=ref)
+		add_epic_history(ref);
 	add_epic_history(epic);
 	
 	map_lookout_raw(epic);
+
 }
 
 
