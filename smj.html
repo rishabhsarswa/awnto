@@ -629,6 +629,49 @@ function bg_vi_play()
 
       document.getElementById("bg_promt_hide").addEventListener("click", startVideo);
       //document.body.addEventListener("pointermove", startVideo);
+      
+   
+  	function epic_go_back()
+  	{
+  		if(epic_history.level>1)
+		{
+			
+			console.log(epic_history.level-2);
+			console.log(epic_history.list[epic_history.level-2]);
+			map_lookout_raw(epic_history.list[epic_history.level-2]);
+			epic_history.level--;
+		
+		}
+  	
+  	}
+  	
+  	var direct_in=0;
+  	 history.pushState(null, null, location.href);
+window.onpopstate = function () {
+direct_in++;
+  // forces user to stay on current page
+ //epic_go_back();
+ console.log(direct_in);
+ history.go(1);
+ if(direct_in==2)
+ {
+ 	epic_go_back();
+ 	direct_in=0;
+ }
+ 
+};
+
+/*
+	window.addEventListener("beforeunload", function(event) {
+	 
+	  event.preventDefault();
+	  event.returnValue = ""; // shows confirmation dialog in some browsers
+	});
+*/
+
+
+      
+      
 
 });
 
@@ -1297,7 +1340,11 @@ function map_tree(epic,level)
 
 var print_mode="block"; // pre , block
 var print_lang="local";
-function map_lookout(epic)
+var epic_history={};
+epic_history.list={};
+epic_history.level=0;
+
+function map_lookout_raw(epic)
 {
 	lookout=epic;	
 	const self=smj.epics[epic];	
@@ -1328,6 +1375,23 @@ function map_lookout(epic)
 	else
 		window.history.replaceState({}, document.title, window.location.pathname+"?epic="+epic);
 	
+}
+function map_lookout(epic)
+{
+	
+	if(epic_history.level>0 && epic == lookout)
+	{
+	
+	}
+	else
+	{
+		epic_history.list[epic_history.level]=epic;
+		epic_history.level++;
+	
+	}
+	console.log(epic_history.level);
+	
+	map_lookout_raw(epic);
 }
 
 
