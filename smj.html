@@ -698,16 +698,17 @@ function map_lookout_top(epic)
 	return new_top;
 }
 
-function show_my_name(obj,ref)
+function show_my_name(obj,ref,lang="local")
 {
 	var name="";
-	if(print_lang=="local")
-		name=obj.lname;
-	else
+	
+	if(lang=="eng")
 		name=obj.name;
+	else
+		name=obj.lname;
+	
 	if(print_mode=="block")
 	{
-		//return "<a href=\"?epic="+obj.epic+"\" >"+name+"</a>";
 		return "<a class=\"name_in_card\" onclick=\"map_lookout_ref('"+obj.epic+"','"+ref+"');\" >"+name+"</a>";
 	}
 	else
@@ -882,6 +883,7 @@ function show_me(self,card=false)
 		tmsg+="<div class=\"show_pdetail\" >";
 	
 	tmsg+=show_my_name(self,self.epic);
+	tmsg+=" <br>🇬🇧 "+show_my_name(self,self.epic,"eng");
 	
 	const desct=xlink;
 	var pp_fd=false;
