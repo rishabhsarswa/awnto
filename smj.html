@@ -778,7 +778,7 @@ function show_me(self,card=false)
 	var tmsg="";
 	if(print_mode=="block")
 	{
-		
+		var bg_opacity="AA";
 		var bg_color="#D8BFD8";
 		if(self.status && self.status=="dead")
 		{
@@ -795,7 +795,7 @@ function show_me(self,card=false)
 			if(self.gender == "female")
 				bg_color="#FFB6C1";
 		}
-		var sh_style="style=\"background-color:"+bg_color+";\"";
+		var sh_style="style=\"background-color:"+bg_color+bg_opacity+";\"";
 		var sh_id="";
 		if(card)
 			sh_id="id=\"epic_"+epic+"\"";
@@ -1169,6 +1169,7 @@ function map_tree(epic,level)
 						if(objd.gender == "female")
 							bg_color="#FFC0CB";
 						*/
+						var bg_opacity="AA";
 						var bg_color="#D8BFD8";
 						if(objd.status && objd.status=="dead")
 						{
@@ -1185,7 +1186,7 @@ function map_tree(epic,level)
 							if(objd.gender == "female")
 								bg_color="#FFB6C1";
 						}
-						var sh_style="style=\"background-color:"+bg_color+";\"";
+						var sh_style="style=\"background-color:"+bg_color+bg_opacity+";\"";
 				  		tmsg+="<div "+sh_style+" class=\"mem_blk\" >"+show_my_name(objd)+"</div>";
 				  	}
 				  	else
