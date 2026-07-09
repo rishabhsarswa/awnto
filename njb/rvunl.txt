@@ -1,0 +1,60 @@
+Here’s the **detailed RVUNL JE (Electrical) Recruitment 2026 syllabus with section-wise weightage** based on the official exam scheme:
+
+---
+
+## 📘 Exam Pattern & Weightage
+| **Section** | **Topics Covered** | **Questions** | **Marks** | **Weightage** |
+|-------------|--------------------|---------------|------------|---------------|
+| **Electrical Engineering** | Circuits, Machines, Power Systems, Control, Electronics, Measurement | 60 | 120 | **60%** |
+| **Reasoning & Mental Ability** | Series, Puzzles, Coding-Decoding, Blood Relations | 8 | 8 | 4% |
+| **GK & Everyday Science (Rajasthan)** | History, Geography, Economy, Schemes | 36 | 36 | 18% |
+| **GK & Everyday Science (India & World)** | Current Affairs, Science, Sports | 12 | 12 | 6% |
+| **General Hindi** | Grammar, Vocabulary, Comprehension | 8 | 8 | 4% |
+| **General English** | Grammar, Vocabulary, Comprehension | 8 | 8 | 4% |
+| **Mathematics** | Algebra, Probability, Geometry, Profit & Loss | 8 | 8 | 4% |
+| **Total** | — | 140 | 200 | 100% |
+
+---
+
+## ⚡ Detailed Electrical Engineering Syllabus
+- **Electrical Circuits**: Network theorems, AC/DC analysis, resonance, transient response  
+- **Electrical Machines**: Transformers, DC machines, induction motors, synchronous machines  
+- **Power Systems**: Generation, transmission, distribution, load flow, fault analysis  
+- **Control Systems**: Feedback, stability, root locus, frequency response  
+- **Electronics & Communication**: Diodes, transistors, amplifiers, digital logic, microprocessors  
+- **Power Electronics**: Converters, inverters, rectifiers, choppers  
+- **Measurement & Instrumentation**: Transducers, bridges, error analysis, CRO  
+- **Switchgear & Protection**: Relays, circuit breakers, protection schemes  
+- **Electrical Materials**: Conductors, insulators, semiconductors, magnetic materials  
+- **Field Theory**: Electrostatics, magnetostatics, Maxwell’s equations  
+
+---
+
+## 🧠 Reasoning & Aptitude
+- **Series & Analogies**  
+- **Coding-Decoding**  
+- **Blood Relations**  
+- **Decision Making**  
+- **Data Interpretation**  
+
+---
+
+## 📚 GK & Languages
+- **Rajasthan GK**: Culture, polity, geography, schemes  
+- **India & World GK**: Current affairs, general science, sports  
+- **General Hindi**: वाक्य रचना, मुहावरे, वर्तनी  
+- **General English**: Grammar, synonyms, antonyms, comprehension  
+
+---
+
+## 📐 Mathematics
+- **Algebra**, **Probability**, **Mensuration**, **Geometry**  
+- **Permutation & Combination**  
+- **Profit & Loss**, **Simple & Compound Interest**  
+- **Calculus**, **Binomial Theorem**  
+
+---
+
+✅ With **60% weightage on Electrical Engineering**, this is the most critical section. GK (Rajasthan + India) contributes **24%**, while reasoning, languages, and maths together make up the remaining **16%**.  
+
+Would you like me to create a **30-day study plan** with daily topic allocation and practice test schedule for maximum efficiency?
